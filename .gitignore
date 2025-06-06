@@ -1,0 +1,83 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Logs ###
+*.log
+logs/
+log/
+
+### OS / 시스템 파일 ###
+.DS_Store
+Thumbs.db
+
+### Build output ###
+/target/
+/build/
+
+### 환경 파일 ###
+.env
+*.env
+*.local
+*.dev
+*.test
+*.prod
+
+### Spring Boot DevTools (핫리로드 관련) ###
+.spring-boot-devtools.properties
+
+### Database files ###
+*.h2.db
+*.mv.db
+*.trace.db
+
+### 인증 및 보안 파일 ###
+*.jks
+*.keystore
+*.pem
+*.crt
+*.key
+
+### 테스트 관련 ###
+/test-output/
+/surefire-reports/
+/jacoco.exec
+
+### Kotlin 사용 시 (선택) ###
+*.kts
+.gradle.kts/
+
