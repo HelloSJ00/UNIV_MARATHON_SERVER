@@ -18,6 +18,7 @@ public class User {
      *  8. 학번
      *  9. 전공
      *  10. 프로필 이미지
+     *  11. USER_ROLE
      */
 
     /**
@@ -67,4 +68,6 @@ public class User {
     // 10
     private String profileImageUrl;
 
+    // 11
+    private Role role;
 }
