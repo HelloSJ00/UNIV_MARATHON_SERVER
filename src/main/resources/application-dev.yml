@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/running_rank_dev?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/running_rank_dev
 
     # jdbc:mysql://localhost:3306/running_rank_dev?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -9,9 +9,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update  # (create, update, validate 등)
+      ddl-auto: create	  # (create, update, validate 등)
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
