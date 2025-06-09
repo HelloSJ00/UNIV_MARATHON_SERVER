@@ -20,3 +20,8 @@ jwt:
   secret: dev-secret-key-2025-running-rank-hahaha
   access-token-expiration: 3600000      # 1시간 (밀리초)
   refresh-token-expiration: 1209600000  # 2주 (밀리초)
+
+logging:
+  level:
+    root: debug
+    com.runningRank: debug

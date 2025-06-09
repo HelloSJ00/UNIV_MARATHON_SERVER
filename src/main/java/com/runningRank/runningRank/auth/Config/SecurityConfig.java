@@ -1,7 +1,10 @@
 package com.runningRank.runningRank.auth.Config;
 
 //import com.runningRank.runningRank.auth.jwt.JwtAuthenticationFilter;
+import com.runningRank.runningRank.auth.jwt.JwtAuthenticationFilter;
 import com.runningRank.runningRank.auth.jwt.JwtProvider;
+import com.runningRank.runningRank.auth.model.CustomUserDetails;
+import com.runningRank.runningRank.auth.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final CustomUserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -38,8 +42,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .anyRequest().authenticated()
-                );
-//                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                )
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider,userDetailsService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
