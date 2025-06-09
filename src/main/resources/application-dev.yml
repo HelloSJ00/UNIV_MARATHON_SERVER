@@ -23,5 +23,9 @@ jwt:
 
 logging:
   level:
-    root: debug
+    root: info
     com.runningRank: debug
+
+kakao:
+  client-id: 30fd97fda368d489fb9ab92080ab4b3d
+  redirect-uri: http://localhost:3000/oauth/callback/kakao
