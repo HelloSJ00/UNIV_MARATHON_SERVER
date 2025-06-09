@@ -1,4 +1,4 @@
-package com.runningRank.user.domain;
+package com.runningRank.runningRank.user.domain;
 
 import jakarta.persistence.*;
 
@@ -18,6 +18,11 @@ public class User {
      *  8. 학번
      *  9. 전공
      *  10. 프로필 이미지
+     */
+
+    /**
+     * 추후 추가할 것들
+     * 1. 뱃지
      */
 
     // 1

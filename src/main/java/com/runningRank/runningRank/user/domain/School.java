@@ -1,4 +1,4 @@
-package com.runningRank.user.domain;
+package com.runningRank.runningRank.user.domain;
 
 public enum School {
     SUNGKYUNKWAN("성균관대학교"),
