@@ -1,7 +1,10 @@
 package com.runningRank.runningRank.auth.service;
 
+import com.runningRank.runningRank.auth.dto.LoginRequest;
 import com.runningRank.runningRank.auth.dto.SignUpRequest;
+import com.runningRank.runningRank.auth.dto.TokenResponse;
 import com.runningRank.runningRank.auth.dto.UserResponse;
+import com.runningRank.runningRank.auth.jwt.JwtProvider;
 import com.runningRank.runningRank.user.domain.Gender;
 import com.runningRank.runningRank.user.domain.School;
 import com.runningRank.runningRank.user.domain.Role;
@@ -17,6 +20,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     public UserResponse signup(SignUpRequest request) {
         // 이메일 중복 체크
@@ -51,5 +55,18 @@ public class AuthService {
                 .profileImageUrl(savedUser.getProfileImageUrl())
                 .role(savedUser.getRole())
                 .build();
+    }
+
+    public TokenResponse login(LoginRequest request){
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 이메일입니다."));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        }
+        // 인증 성공 시 JWT 발급
+        String token = jwtProvider.createAccessToken(user.getEmail(), user.getRole());
+
+        return new TokenResponse(token,"Bearer");
     }
 }

@@ -1,4 +1,4 @@
-//package com.runningRank.runningRank.auth.jwt;
-//
-//public class JwtTokenUtil {
-//}
+package com.runningRank.runningRank.auth.jwt;
+
+public class JwtTokenUtil {
+}

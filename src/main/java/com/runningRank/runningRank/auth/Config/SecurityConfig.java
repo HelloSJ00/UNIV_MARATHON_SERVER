@@ -1,7 +1,7 @@
 package com.runningRank.runningRank.auth.Config;
 
 //import com.runningRank.runningRank.auth.jwt.JwtAuthenticationFilter;
-//import com.runningRank.runningRank.auth.jwt.JwtProvider;
+import com.runningRank.runningRank.auth.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-//    private final JwtProvider jwtProvider;
+    private final JwtProvider jwtProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 X
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/signup",        // 로그인, 회원가입 등
+                                "/api/auth/**",        // 로그인, 회원가입 등
                                 "/oauth/**",         // 카카오 OAuth 콜백 등
                                 "/swagger-ui/**",    // Swagger 문서
                                 "/v3/api-docs/**"
