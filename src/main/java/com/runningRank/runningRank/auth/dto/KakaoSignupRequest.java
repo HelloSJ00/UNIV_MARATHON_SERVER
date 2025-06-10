@@ -15,6 +15,12 @@ public class KakaoSignupRequest {
     // 3. 이름
     private String name;          // 이름
 
+    // 3 - 2
+    private String oauthProvider;
+
+    // 3 - 3
+    private String oauthId;
+
     // 4. 나이
     private int age;              // 나이
 

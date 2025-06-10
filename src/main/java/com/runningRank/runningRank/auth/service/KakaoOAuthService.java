@@ -1,9 +1,6 @@
 package com.runningRank.runningRank.auth.service;
 
-import com.runningRank.runningRank.auth.dto.KakaoLoginResponse;
-import com.runningRank.runningRank.auth.dto.KakaoSignupRequest;
-import com.runningRank.runningRank.auth.dto.KakaoUserInfo;
-import com.runningRank.runningRank.auth.dto.TokenResponse;
+import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.jwt.JwtProvider;
 import com.runningRank.runningRank.user.domain.Gender;
 import com.runningRank.runningRank.user.domain.Role;
@@ -58,6 +55,49 @@ public class KakaoOAuthService {
         String jwt = jwtProvider.createAccessToken(user.getEmail(),user.getRole());
         return new TokenResponse(jwt,"Barear");
     }
+
+    /**
+     * 카카오 회원가입
+     * @param request
+     * @return
+     */
+    public UserResponse kakaoSignup(KakaoSignupRequest request){
+        // 이메일 중복 체크
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+
+        // User 객체 생성
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword())) // 비밀번호 암호화
+                .name(request.getName())
+                .oauthProvider("kakao")
+                .oauthId(request.getOauthId())
+                .age(request.getAge())
+                .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
+                .school(School.valueOf(request.getSchool().toUpperCase())) // 동일하게 처리 가능
+                .major(request.getMajor())
+                .profileImageUrl(request.getProfileImage())
+                .role(Role.ROLE_USER)
+                .build();
+
+        // 저장
+        User savedUser = userRepository.save(user);
+        return UserResponse.builder()
+                .id(savedUser.getId())
+                .email(savedUser.getEmail())
+                .name(savedUser.getName())
+                .age(savedUser.getAge())
+                .gender(savedUser.getGender())
+                .school(savedUser.getSchool())
+                .studentNumber(savedUser.getStudentNumber())
+                .major(savedUser.getMajor())
+                .profileImageUrl(savedUser.getProfileImageUrl())
+                .role(savedUser.getRole())
+                .build();
+    }
+
     public KakaoLoginResponse kakaoLogin(String code) {
         // 1. 카카오에 토큰 요청 (인가 코드 -> 액세스 토큰)
         String kakaoAccessToken = getAccessToken(code);

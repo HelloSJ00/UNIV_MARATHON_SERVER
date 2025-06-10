@@ -41,10 +41,18 @@ public class AuthController {
     }
 
     /**
-     * 카카오 회원가입 및 로그인
+     * 카카오 로그인
      */
     @PostMapping("/oauth/kakao")
     public ResponseEntity<KakaoLoginResponse> kakaoLogin(@RequestBody KakaoLoginRequest request) {
         return ResponseEntity.ok(kakaoOAuthService.kakaoLogin(request.getCode()));
+    }
+
+    /**
+     * 카카오 회원가입
+     */
+    @PostMapping("/oauth/kakao/signup")
+    public ResponseEntity<UserResponse> kakaoLogin(@RequestBody KakaoSignupRequest request) {
+        return ResponseEntity.ok(kakaoOAuthService.kakaoSignup(request));
     }
 }

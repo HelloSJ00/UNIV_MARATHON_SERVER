@@ -1,9 +1,6 @@
 package com.runningRank.runningRank.auth.service;
 
-import com.runningRank.runningRank.auth.dto.LoginRequest;
-import com.runningRank.runningRank.auth.dto.SignUpRequest;
-import com.runningRank.runningRank.auth.dto.TokenResponse;
-import com.runningRank.runningRank.auth.dto.UserResponse;
+import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.jwt.JwtProvider;
 import com.runningRank.runningRank.user.domain.Gender;
 import com.runningRank.runningRank.user.domain.School;

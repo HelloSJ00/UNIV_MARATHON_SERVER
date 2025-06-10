@@ -9,7 +9,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create	  # (create, update, validate 등)
+      ddl-auto: update	  # (create, update, validate 등)
     show-sql: true
     properties:
       hibernate:
