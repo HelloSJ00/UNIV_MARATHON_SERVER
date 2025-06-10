@@ -40,7 +40,13 @@ public class SecurityConfig {
                                 "/api/auth/oauth/kakao", // ✅ 이 라인 추가
                                 "/swagger-ui/**",    // Swagger 문서
                                 "/v3/api-docs/**",
-                                "/api/major/**"
+                                "/api/major/**",
+                                "/api/runningRecord/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

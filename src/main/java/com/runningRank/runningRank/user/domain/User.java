@@ -1,11 +1,15 @@
 package com.runningRank.runningRank.user.domain;
 
 import com.runningRank.runningRank.major.domain.Major;
+import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -83,4 +87,8 @@ public class User {
     // 11
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    // 12. 러닝 기록 1:N = 유저 : 러닝기록
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RunningRecord> runningRecords = new ArrayList<>();
 }
