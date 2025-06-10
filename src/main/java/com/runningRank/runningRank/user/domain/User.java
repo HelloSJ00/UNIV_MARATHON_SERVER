@@ -1,8 +1,16 @@
 package com.runningRank.runningRank.user.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     /**
@@ -18,6 +26,7 @@ public class User {
      *  8. 학번
      *  9. 전공
      *  10. 프로필 이미지
+     *  11. USER_ROLE
      */
 
     /**
@@ -67,4 +76,7 @@ public class User {
     // 10
     private String profileImageUrl;
 
+    // 11
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }
