@@ -41,7 +41,12 @@ public class SecurityConfig {
                                 "/swagger-ui/**",    // Swagger 문서
                                 "/v3/api-docs/**",
                                 "/api/major/**",
-                                "/api/runningRecord/**"
+                                "/api/runningRecord/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
