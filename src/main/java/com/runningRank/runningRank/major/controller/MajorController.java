@@ -1,7 +1,9 @@
 package com.runningRank.runningRank.major.controller;
 
 import com.runningRank.runningRank.global.dto.ApiResponse;
+import com.runningRank.runningRank.major.dto.SchoolResponse;
 import com.runningRank.runningRank.major.service.MajorService;
+import com.runningRank.runningRank.user.domain.School;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/major")
@@ -48,5 +52,20 @@ public class MajorController {
                             .build()
                     );
         }
+    }
+
+    /**
+     * 회원가입시 모든 학교 조회 기능
+     * @return
+     */
+    @GetMapping("/school")
+    public ResponseEntity<ApiResponse<List<SchoolResponse>>> getAllSchools() {
+        List<SchoolResponse> responseList = Arrays.stream(School.values())
+                .map(school -> new SchoolResponse(school.name(), school.getDisplayName()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(200, "학교 목록 조회 성공", responseList)
+        );
     }
 }
