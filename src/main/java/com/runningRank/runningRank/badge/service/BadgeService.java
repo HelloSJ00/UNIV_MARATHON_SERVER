@@ -11,10 +11,12 @@ import com.runningRank.runningRank.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,7 +32,9 @@ public class BadgeService {
      * 러닝 랭킹 매기는 로직
      */
     @Transactional
+    @Scheduled(cron = "0 0 0 * * *") // 매일 자정 0시 0분 0초
     public void top3bySchoolAndByRunningType(){
+        log.info("🎯 자정 배치 작업 실행됨: {}", LocalDateTime.now());
         // 1. User 테이블과 RunRecord 테이블 이너 조인 후
         // 2. RunningType,School 로 GroupBy 해서 상위 3명씩만
         List<Object[]> rows = runningRecordRepository.findTop3PerSchoolAndTypeAll();
