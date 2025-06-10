@@ -39,7 +39,8 @@ public class SecurityConfig {
                                 "/api/auth/**",        // 로그인, 회원가입 ,카카오 OAuth 콜백 등
                                 "/api/auth/oauth/kakao", // ✅ 이 라인 추가
                                 "/swagger-ui/**",    // Swagger 문서
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/api/major"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
