@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.user.domain;
 
+import com.runningRank.runningRank.major.domain.Major;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class User {
      *  7. 학교
      *  8. 학번
      *  9. 전공
+     *      따로 테이블로 뻄
      *  10. 프로필 이미지
      *  11. USER_ROLE
      */
@@ -71,7 +73,9 @@ public class User {
     private String studentNumber;
 
     // 9
-    private String major;
+    @ManyToOne
+    @JoinColumn(name = "major_id")
+    private Major major;
 
     // 10
     private String profileImageUrl;

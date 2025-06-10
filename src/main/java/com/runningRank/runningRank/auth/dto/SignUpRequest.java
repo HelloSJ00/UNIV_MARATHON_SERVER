@@ -29,7 +29,7 @@ public class SignUpRequest {
     private String studentId;     // 학번
 
     // 8. 전공
-    private String major;         // 전공
+     private String major;         // 전공
 
     // 9.프로필 이미지
     private String profileImage;  // 프로필 이미지 URL (선택)
