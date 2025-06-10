@@ -36,8 +36,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 X
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",        // 로그인, 회원가입 등
-                                "/oauth/**",         // 카카오 OAuth 콜백 등
+                                "/api/auth/**",        // 로그인, 회원가입 ,카카오 OAuth 콜백 등
+                                "/api/auth/oauth/kakao", // ✅ 이 라인 추가
                                 "/swagger-ui/**",    // Swagger 문서
                                 "/v3/api-docs/**"
                         ).permitAll()

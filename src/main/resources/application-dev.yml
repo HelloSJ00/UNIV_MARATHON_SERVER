@@ -9,7 +9,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create	  # (create, update, validate 등)
+      ddl-auto: update	  # (create, update, validate 등)
     show-sql: true
     properties:
       hibernate:
@@ -23,5 +23,9 @@ jwt:
 
 logging:
   level:
-    root: debug
+    root: info
     com.runningRank: debug
+
+kakao:
+  client-id: 30fd97fda368d489fb9ab92080ab4b3d
+  redirect-uri: http://localhost:3000/oauth/callback/kakao

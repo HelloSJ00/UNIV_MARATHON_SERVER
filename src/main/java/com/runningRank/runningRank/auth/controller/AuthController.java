@@ -1,11 +1,9 @@
 package com.runningRank.runningRank.auth.controller;
 
 
-import com.runningRank.runningRank.auth.dto.LoginRequest;
-import com.runningRank.runningRank.auth.dto.SignUpRequest;
-import com.runningRank.runningRank.auth.dto.TokenResponse;
-import com.runningRank.runningRank.auth.dto.UserResponse;
+import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.service.AuthService;
+import com.runningRank.runningRank.auth.service.KakaoOAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final KakaoOAuthService kakaoOAuthService;
 
     /**
      * 회원가입 API
@@ -39,5 +38,21 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    /**
+     * 카카오 로그인
+     */
+    @PostMapping("/oauth/kakao")
+    public ResponseEntity<KakaoLoginResponse> kakaoLogin(@RequestBody KakaoLoginRequest request) {
+        return ResponseEntity.ok(kakaoOAuthService.kakaoLogin(request.getCode()));
+    }
+
+    /**
+     * 카카오 회원가입
+     */
+    @PostMapping("/oauth/kakao/signup")
+    public ResponseEntity<UserResponse> kakaoLogin(@RequestBody KakaoSignupRequest request) {
+        return ResponseEntity.ok(kakaoOAuthService.kakaoSignup(request));
     }
 }
