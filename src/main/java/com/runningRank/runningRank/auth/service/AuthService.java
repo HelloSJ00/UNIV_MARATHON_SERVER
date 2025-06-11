@@ -42,7 +42,7 @@ public class AuthService {
                 .name(request.getName())
                 .age(request.getAge())
                 .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
-                .school(School.valueOf(request.getSchool().toUpperCase())) // 동일하게 처리 가능
+                .school(School.valueOf(request.getSchool())) // 동일하게 처리 가능
                 .major(major)  // 변경된 부분
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)

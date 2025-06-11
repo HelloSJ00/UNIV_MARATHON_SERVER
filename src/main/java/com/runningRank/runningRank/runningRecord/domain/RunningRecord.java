@@ -24,7 +24,7 @@ public class RunningRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 러닝 타입: 10K, HALF, FULL
+    // 러닝 타입: TEN_KM, HALF, FULL
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = false)
     private RunningType type;

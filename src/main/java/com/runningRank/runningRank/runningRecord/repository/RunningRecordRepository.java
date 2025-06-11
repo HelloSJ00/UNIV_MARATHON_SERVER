@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface RunningRepository extends JpaRepository<RunningRecord,Long> {
+public interface RunningRecordRepository extends JpaRepository<RunningRecord,Long> {
 
     /**
      * 학교별 종목별 러닝 기록 랭킹 조회
@@ -47,4 +47,20 @@ public interface RunningRepository extends JpaRepository<RunningRecord,Long> {
     List<RunningRecord> findTop100ByTypeOrderByRecordTimeAsc(
             @Param("type") String type
     );
+
+    @Query(
+            value = "SELECT school, type, user_id, record_time_in_seconds, rnk " +
+                    "FROM ( " +
+                    "  SELECT r.*, u.school, " +
+                    "         RANK() OVER ( " +
+                    "           PARTITION BY u.school, r.type " +
+                    "           ORDER BY r.record_time_in_seconds ASC " +
+                    "         ) AS rnk " +
+                    "  FROM running_record r " +
+                    "  JOIN user u ON r.user_id = u.id " +
+                    ") ranked " +
+                    "WHERE ranked.rnk <= 3",
+            nativeQuery = true
+    )
+    List<Object[]> findTop3PerSchoolAndTypeAll();
 }
