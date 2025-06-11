@@ -1,5 +1,5 @@
 package com.runningRank.runningRank.badge.domain;
 
-public enum Rank {
+public enum RunningRank {
     GOLD,SILVER,BRONZE;
 }

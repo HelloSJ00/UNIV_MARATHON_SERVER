@@ -1,7 +1,7 @@
 package com.runningRank.runningRank.badge.service;
 
 import com.runningRank.runningRank.badge.domain.Badge;
-import com.runningRank.runningRank.badge.domain.Rank;
+import com.runningRank.runningRank.badge.domain.RunningRank;
 import com.runningRank.runningRank.badge.repository.BadgeRepository;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.runningRecord.dto.RunningRankDto;
@@ -44,34 +44,39 @@ public class BadgeService {
                 .map(row -> new RunningRankDto(
                         (String) row[0],                         // school
                         (String) row[1],                         // type
-                        ((BigInteger) row[2]).longValue(),       // userId
+                        ((Number) row[2]).longValue(),           // userId
                         (Integer) row[3],                        // record_time_in_seconds
-                        ((BigInteger) row[4]).intValue()         // rank
+                        ((Number) row[4]).intValue()             // rank
                 ))
                 .toList();
 
         // 3. 기존 배지 전체 삭제
         badgeRepository.deleteAll();
 
-        // 4. 새로운 배지 등록
+        /**
+         * 4. 새로운 배지 등록
+         * 1등은 GOLD 2등은 SILVER 3등은 BRONZE
+         */
         List<Badge> badges = dtos.stream()
                 .map(dto -> {
-                    Rank rank = switch (dto.rank()) {
-                        case 1 -> Rank.GOLD;
-                        case 2 -> Rank.SILVER;
-                        case 3 -> Rank.BRONZE;
+                    RunningRank runningRank = switch (dto.rank()) {
+                        case 1 -> RunningRank.GOLD;
+                        case 2 -> RunningRank.SILVER;
+                        case 3 -> RunningRank.BRONZE;
                         default -> throw new IllegalStateException("Invalid rank: " + dto.rank());
                     };
 
                     return Badge.builder()
                             .school(School.valueOf(dto.school()))
                             .type(RunningType.valueOf(dto.type()))
-                            .rank(rank)
+                            .runningRank(runningRank)
                             .awardedAt(LocalDate.now())
                             .user(userRepository.getReferenceById(dto.userId()))
                             .build();
                 })
                 .toList();
+
+        // 5. 저장
         badgeRepository.saveAll(badges);
     }
 }

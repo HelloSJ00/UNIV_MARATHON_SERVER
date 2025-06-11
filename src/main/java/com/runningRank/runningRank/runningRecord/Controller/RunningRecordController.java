@@ -3,6 +3,8 @@ package com.runningRank.runningRank.runningRecord.Controller;
 import com.runningRank.runningRank.global.dto.ApiResponse;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
+import com.runningRank.runningRank.runningRecord.dto.OverallRunningRankDto;
+import com.runningRank.runningRank.runningRecord.dto.SchoolTopRankDto;
 import com.runningRank.runningRank.runningRecord.service.RunningRecordService;
 import com.runningRank.runningRank.user.domain.School;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +28,13 @@ public class RunningRecordController {
      * 학교 통합 전체 랭킹 조회
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RunningRecord>>> getRanking(
+    public ResponseEntity<ApiResponse<List<OverallRunningRankDto>>> getRanking(
             @RequestParam("type") RunningType type
     ) {
-        List<RunningRecord> ranking = runningRecordService.getTop100RankingByType(type);
+        List<OverallRunningRankDto> ranking = runningRecordService.getTopRankingsByType(type);
 
         return ResponseEntity.ok(
-                ApiResponse.<List<RunningRecord>>builder()
+                ApiResponse.<List<OverallRunningRankDto>>builder()
                         .status(HttpStatus.OK.value())
                         .message("통합 러닝 랭킹 조회 성공")
                         .data(ranking)
@@ -48,13 +50,13 @@ public class RunningRecordController {
      * @return
      */
     @GetMapping("/univRankings")
-    public ResponseEntity<ApiResponse<List<RunningRecord>>> getRanking(
+    public ResponseEntity<ApiResponse<List<SchoolTopRankDto>>> getRanking(
             @RequestParam("school") School school,
             @RequestParam("type") RunningType type
     ) {
-        List<RunningRecord> ranking = runningRecordService.getRankingsBySchoolAndType(school, type);
+        List<SchoolTopRankDto> ranking = runningRecordService.getRankingsBySchoolAndType(school, type);
         return ResponseEntity.ok(
-                ApiResponse.<List<RunningRecord>>builder()
+                ApiResponse.<List<SchoolTopRankDto>>builder()
                         .status(HttpStatus.OK.value())
                         .message("학교별 러닝 랭킹 조회 성공")
                         .data(ranking)

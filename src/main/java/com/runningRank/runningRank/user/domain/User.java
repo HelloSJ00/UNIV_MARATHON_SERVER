@@ -66,10 +66,12 @@ public class User {
     private int age;
 
     // 6
+    // MALE,FEMALE
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     // 7
+    // ex) SCHOOL_001
     @Enumerated(EnumType.STRING)
     private School school;
 
@@ -91,4 +93,6 @@ public class User {
     // 12. 러닝 기록 1:N = 유저 : 러닝기록
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RunningRecord> runningRecords = new ArrayList<>();
+
+    // 13. 랭킹 뱃지 1:N = 유저 : 랭킹 뱃지
 }
