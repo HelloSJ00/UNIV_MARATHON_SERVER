@@ -95,4 +95,12 @@ public class User {
     private List<RunningRecord> runningRecords = new ArrayList<>();
 
     // 13. 랭킹 뱃지 1:N = 유저 : 랭킹 뱃지
+
+    // 14. 학생 이메일 검증을 위한 필드
+    // 학교 이메일 인증 정보
+    @Column(nullable = true, unique = true)
+    private String universityEmail;
+
+    @Column(nullable = false)
+    private boolean isUniversityVerified;
 }
