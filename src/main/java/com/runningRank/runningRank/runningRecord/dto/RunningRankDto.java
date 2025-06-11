@@ -1,7 +1,7 @@
 package com.runningRank.runningRank.runningRecord.dto;
 
 public record RunningRankDto(
-        String school,
+        String university,
         String type,
         Long userId,
         int time,

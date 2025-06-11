@@ -1,7 +1,6 @@
 package com.runningRank.runningRank.badge.domain;
 
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
-import com.runningRank.runningRank.user.domain.School;
 import com.runningRank.runningRank.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,8 +27,7 @@ public class Badge {
     @Enumerated(EnumType.STRING)
     private RunningType type;
 
-    @Enumerated(EnumType.STRING)
-    private School school; // 전공이 소속된 학교
+    private String unversity; // 전공이 소속된 학교
 
     @Enumerated(EnumType.STRING)
     private RunningRank runningRank;      // "GOLD", "SILVER", "BRONZE"

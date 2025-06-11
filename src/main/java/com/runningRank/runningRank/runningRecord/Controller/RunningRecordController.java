@@ -6,7 +6,6 @@ import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.runningRecord.dto.OverallRunningRankDto;
 import com.runningRank.runningRank.runningRecord.dto.SchoolTopRankDto;
 import com.runningRank.runningRank.runningRecord.service.RunningRecordService;
-import com.runningRank.runningRank.user.domain.School;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,10 +50,10 @@ public class RunningRecordController {
      */
     @GetMapping("/univRankings")
     public ResponseEntity<ApiResponse<List<SchoolTopRankDto>>> getRanking(
-            @RequestParam("school") School school,
+            @RequestParam("universityName") String universityName,
             @RequestParam("type") RunningType type
     ) {
-        List<SchoolTopRankDto> ranking = runningRecordService.getRankingsBySchoolAndType(school, type);
+        List<SchoolTopRankDto> ranking = runningRecordService.getRankingsBySchoolAndType(universityName, type);
         return ResponseEntity.ok(
                 ApiResponse.<List<SchoolTopRankDto>>builder()
                         .status(HttpStatus.OK.value())

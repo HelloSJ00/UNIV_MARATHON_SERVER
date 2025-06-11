@@ -1,8 +1,10 @@
 package com.runningRank.runningRank.university.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class University {
 
     /**
@@ -15,9 +17,8 @@ public class University {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String universityName;
 
-    @Column(unique = true)
     private String emailDomain;
 }

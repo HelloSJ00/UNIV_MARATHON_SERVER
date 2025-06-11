@@ -2,6 +2,7 @@ package com.runningRank.runningRank.user.domain;
 
 import com.runningRank.runningRank.major.domain.Major;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
+import com.runningRank.runningRank.university.domain.University;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -72,8 +73,10 @@ public class User {
 
     // 7
     // ex) SCHOOL_001
-    @Enumerated(EnumType.STRING)
-    private School school;
+    // 6/11 수정 -> School 더이상 ENUM으로 저장하지 않고 따로 테이블 참조하게끔
+    @ManyToOne
+    @JoinColumn(name = "university_id")
+    private University university;
 
     // 8
     private String studentNumber;
@@ -97,6 +100,7 @@ public class User {
     // 13. 랭킹 뱃지 1:N = 유저 : 랭킹 뱃지
 
     // 14. 학생 이메일 검증을 위한 필드
+
     // 학교 이메일 인증 정보
     @Column(nullable = true, unique = true)
     private String universityEmail;

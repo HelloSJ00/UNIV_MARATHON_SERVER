@@ -4,8 +4,9 @@ import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.jwt.JwtProvider;
 import com.runningRank.runningRank.major.domain.Major;
 import com.runningRank.runningRank.major.repository.MajorRepository;
+import com.runningRank.runningRank.university.domain.University;
+import com.runningRank.runningRank.university.repository.UniversityRepository;
 import com.runningRank.runningRank.user.domain.Gender;
-import com.runningRank.runningRank.user.domain.School;
 import com.runningRank.runningRank.user.domain.Role;
 import com.runningRank.runningRank.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final MajorRepository majorRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UniversityRepository universityRepository;
     private final JwtProvider jwtProvider;
 
     public UserResponse signup(SignUpRequest request) {
@@ -35,6 +37,8 @@ public class AuthService {
         Major major = majorRepository.findByName(majorName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 전공이 존재하지 않습니다."));
 
+        University university = universityRepository.findByUniversityName(request.getUniversity())
+                .orElseThrow(() -> new IllegalArgumentException("해당 학교가 존재하지 않습니다."));
         // User 객체 생성
         User user = User.builder()
                 .email(request.getEmail())
@@ -42,7 +46,7 @@ public class AuthService {
                 .name(request.getName())
                 .age(request.getAge())
                 .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
-                .school(School.valueOf(request.getSchool())) // 동일하게 처리 가능
+                .university(university) // 동일하게 처리 가능
                 .major(major)  // 변경된 부분
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)
@@ -56,7 +60,7 @@ public class AuthService {
                 .name(savedUser.getName())
                 .age(savedUser.getAge())
                 .gender(savedUser.getGender())
-                .school(savedUser.getSchool())
+                .university(savedUser.getUniversity())
                 .studentNumber(savedUser.getStudentNumber())
                 .major(savedUser.getMajor().getName())
                 .profileImageUrl(savedUser.getProfileImageUrl())

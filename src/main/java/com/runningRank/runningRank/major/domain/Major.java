@@ -1,6 +1,5 @@
 package com.runningRank.runningRank.major.domain;
 
-import com.runningRank.runningRank.user.domain.School;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -19,6 +18,5 @@ public class Major {
 
     private String name; // 전공명
 
-    @Enumerated(EnumType.STRING)
-    private School school; // 전공이 소속된 학교
+    private String universityName; // 전공이 소속된 학교
 }

@@ -3,7 +3,6 @@ package com.runningRank.runningRank.major.controller;
 import com.runningRank.runningRank.global.dto.ApiResponse;
 import com.runningRank.runningRank.major.dto.SchoolResponse;
 import com.runningRank.runningRank.major.service.MajorService;
-import com.runningRank.runningRank.user.domain.School;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,9 +31,9 @@ public class MajorController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<String>>> getMajorsBySchool(@RequestParam String school) {
+    public ResponseEntity<ApiResponse<List<String>>> getMajorsByUniversityName(@RequestParam String universityName) {
         try {
-            List<String> majors = majorService.getMajorsBySchool(school);
+            List<String> majors = majorService.getMajorsByUniversityName(universityName);
             return ResponseEntity.ok(
                     ApiResponse.<List<String>>builder()
                             .status(HttpStatus.OK.value())
@@ -58,14 +57,15 @@ public class MajorController {
      * 회원가입시 모든 학교 조회 기능
      * @return
      */
-    @GetMapping("/school")
-    public ResponseEntity<ApiResponse<List<SchoolResponse>>> getAllSchools() {
-        List<SchoolResponse> responseList = Arrays.stream(School.values())
-                .map(school -> new SchoolResponse(school.name(), school.getDisplayName()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(200, "학교 목록 조회 성공", responseList)
-        );
-    }
+//    @GetMapping("/school")
+//    public ResponseEntity<ApiResponse<List<SchoolResponse>>> getAllSchools() {
+//        // 수정 필요
+////        List<SchoolResponse> responseList = Arrays.stream(School.values())
+////                .map(school -> new SchoolResponse(school.name(), school.getDisplayName()))
+////                .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(
+//                new ApiResponse<>(200, "학교 목록 조회 성공", "")
+//        );
+//    }
 }
