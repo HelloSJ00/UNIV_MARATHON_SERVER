@@ -14,6 +14,8 @@ import com.runningRank.runningRank.user.domain.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -30,11 +32,9 @@ public class AuthService {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
-        // 사용자가 전공명을 text로 보내온다고 가정
-        String majorName = request.getMajor();  // 예: "컴퓨터공학과"
-
-        // 전공명으로 Major 엔티티 조회
-        Major major = majorRepository.findByName(majorName)
+        // 전공명으로만 조회시 중복 발생
+        // 전공명,학교명 으로 Major 엔티티 조회
+        Major major = majorRepository.findByNameAndUniversityName(request.getMajor(),request.getUniversity())
                 .orElseThrow(() -> new IllegalArgumentException("해당 전공이 존재하지 않습니다."));
 
         University university = universityRepository.findByUniversityName(request.getUniversity())
@@ -79,5 +79,15 @@ public class AuthService {
         String token = jwtProvider.createAccessToken(user.getEmail(), user.getRole());
 
         return new TokenResponse(token,"Bearer");
+    }
+
+    /**
+     * 회원가입시 등록된 모든 학교 조회
+     * @return
+     */
+    public List<String> getAllUniversityNames() {
+        return universityRepository.findAll().stream()
+                .map(University::getUniversityName) // universityName 필드만 추출
+                .toList(); // Java 16 이상. Java 8~11이면 .collect(Collectors.toList())
     }
 }

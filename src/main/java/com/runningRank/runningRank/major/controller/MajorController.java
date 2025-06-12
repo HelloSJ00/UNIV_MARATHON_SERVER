@@ -52,20 +52,4 @@ public class MajorController {
                     );
         }
     }
-
-    /**
-     * 회원가입시 모든 학교 조회 기능
-     * @return
-     */
-//    @GetMapping("/school")
-//    public ResponseEntity<ApiResponse<List<SchoolResponse>>> getAllSchools() {
-//        // 수정 필요
-////        List<SchoolResponse> responseList = Arrays.stream(School.values())
-////                .map(school -> new SchoolResponse(school.name(), school.getDisplayName()))
-////                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(
-//                new ApiResponse<>(200, "학교 목록 조회 성공", "")
-//        );
-//    }
 }
