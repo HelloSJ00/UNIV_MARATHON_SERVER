@@ -4,13 +4,14 @@ package com.runningRank.runningRank.auth.controller;
 import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.service.AuthService;
 import com.runningRank.runningRank.auth.service.KakaoOAuthService;
+import com.runningRank.runningRank.global.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -54,5 +55,45 @@ public class AuthController {
     @PostMapping("/oauth/kakao/signup")
     public ResponseEntity<UserResponse> kakaoLogin(@RequestBody KakaoSignupRequest request) {
         return ResponseEntity.ok(kakaoOAuthService.kakaoSignup(request));
+    }
+
+    /**
+     * 회원가입시 모든 학교 조회
+     */
+    @GetMapping("/university/all")
+    public ResponseEntity<ApiResponse<List<String>>> getAllUniversityNames() {
+        List<String> universityNames = authService.getAllUniversityNames();
+        return ResponseEntity.ok(ApiResponse.<List<String>>builder()
+                .status(HttpStatus.OK.value())
+                .message("모든 학교 조회 성공")
+                .data(universityNames)
+                .build());
+    }
+
+    /**
+     * 학교별 모든 전공 조회
+     * @return
+     */
+    @GetMapping("/university/major")
+    public ResponseEntity<ApiResponse<List<String>>> getMajorsByUniversityName(@RequestParam String universityName) {
+        try {
+            List<String> majors = authService.getMajorsByUniversityName(universityName);
+            return ResponseEntity.ok(
+                    ApiResponse.<List<String>>builder()
+                            .status(HttpStatus.OK.value())
+                            .message("전공 조회 성공")
+                            .data(majors)
+                            .build()
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.<List<String>>builder()
+                            .status(HttpStatus.BAD_REQUEST.value())
+                            .message("존재하지 않는 학교입니다.")
+                            .data(null)
+                            .build()
+                    );
+        }
     }
 }

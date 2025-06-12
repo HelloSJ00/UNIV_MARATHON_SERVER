@@ -28,7 +28,7 @@ public class KakaoSignupRequest {
     private String gender;        // 성별 (예: "MALE", "FEMALE")
 
     // 6. 대학교
-    private String school;    // 대학교 이름
+    private String university;    // 대학교 이름
 
     // 7. 학번
     private String studentId;     // 학번

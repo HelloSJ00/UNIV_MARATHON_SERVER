@@ -7,7 +7,6 @@ import com.runningRank.runningRank.runningRecord.dto.RunningRankDto;
 import com.runningRank.runningRank.runningRecord.dto.SchoolTopRankDto;
 import com.runningRank.runningRank.runningRecord.dto.SimpleUserDto;
 import com.runningRank.runningRank.runningRecord.repository.RunningRecordRepository;
-import com.runningRank.runningRank.user.domain.School;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,9 +24,9 @@ public class RunningRecordService {
     /**
      * 학교별 종목 기록 랭킹 조회
      */
-    public List<SchoolTopRankDto> getRankingsBySchoolAndType(School school, RunningType type) {
+    public List<SchoolTopRankDto> getRankingsBySchoolAndType(String universityName, RunningType type) {
 
-        List<RunningRecord> records = runningRecordRepository.findRankingBySchoolAndType(school.name(), type.name());
+        List<RunningRecord> records = runningRecordRepository.findRankingBySchoolAndType(universityName, type.name());
 
         AtomicInteger rankCounter = new AtomicInteger(1);
 
@@ -41,7 +40,7 @@ public class RunningRecordService {
                                 record.getUser().getId(),
                                 record.getUser().getName(),
                                 record.getUser().getEmail(),
-                                record.getUser().getSchool(),
+                                record.getUser().getUniversity().getUniversityName(),
                                 record.getUser().getStudentNumber(),
                                 record.getUser().getProfileImageUrl()
                         ))
@@ -68,7 +67,7 @@ public class RunningRecordService {
                                 record.getUser().getId(),
                                 record.getUser().getName(),
                                 record.getUser().getEmail(),
-                                record.getUser().getSchool(),
+                                record.getUser().getUniversity().getUniversityName(),
                                 record.getUser().getStudentNumber(),
                                 record.getUser().getProfileImageUrl()
                         ))

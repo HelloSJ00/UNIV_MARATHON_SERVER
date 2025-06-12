@@ -6,7 +6,6 @@ import com.runningRank.runningRank.badge.repository.BadgeRepository;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.runningRecord.dto.RunningRankDto;
 import com.runningRank.runningRank.runningRecord.repository.RunningRecordRepository;
-import com.runningRank.runningRank.user.domain.School;
 import com.runningRank.runningRank.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +66,7 @@ public class BadgeService {
                     };
 
                     return Badge.builder()
-                            .school(School.valueOf(dto.school()))
+                            .unversity(dto.university())
                             .type(RunningType.valueOf(dto.type()))
                             .runningRank(runningRank)
                             .awardedAt(LocalDate.now())

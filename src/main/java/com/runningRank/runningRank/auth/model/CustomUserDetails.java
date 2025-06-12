@@ -20,8 +20,8 @@ public class CustomUserDetails implements UserDetails {
         return user.getId();
     }
 
-    public String getSchool() {
-        return user.getSchool().name(); // enum이라면
+    public String getUniversity() {
+        return user.getUniversity().getUniversityName();
     }
 
     @Override
