@@ -8,10 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/emailVerification")
@@ -44,6 +41,34 @@ public class EmailVerificationController {
                 .build();
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 대학생 인증용 이메일 보내기
+     */
+    @GetMapping("/sendMail")
+    public ResponseEntity<ApiResponse<Boolean>> requestSendVerifyEmail(@RequestParam("univEmail") String univEmail){
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                .status(HttpStatus.OK.value()) // 200
+                .message("학교 이메일 인증 요청")
+                .data(emailVerificationService.sendVerificationCode(univEmail))
+                .build());
+    }
+
+    /**
+     * 이메일 인증 코드 검증하기
+     */
+    @GetMapping("/verifyCode")
+    public ResponseEntity<ApiResponse<Boolean>> requestVerifyCode(
+            @RequestParam("univEmail") String univEmail,
+            @RequestParam("verifyCode") String verifyCode){
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .status(HttpStatus.OK.value()) // 200
+                        .message("학교 이메일 코드 검증")
+                        .data(emailVerificationService.verifyCode(univEmail,verifyCode))
+                        .build());
     }
 
 }

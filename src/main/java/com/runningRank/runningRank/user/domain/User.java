@@ -107,4 +107,11 @@ public class User {
 
     @Column(nullable = false)
     private boolean isUniversityVerified;
+
+
+    public void verifyUnivEmail(String univEmail){
+        this.universityEmail = univEmail;
+        this.isUniversityVerified = true;
+    }
+
 }
