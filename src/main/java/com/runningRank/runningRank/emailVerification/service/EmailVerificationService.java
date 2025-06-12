@@ -63,16 +63,22 @@ public class EmailVerificationService {
      */
     public boolean sendVerificationCode(String univEmail) {
         try {
-            // 새 인증 코드 생성
-            String code = generateRandomCode();
+            log.info("이메일 인증 요청 시작 - 대상 이메일: {}", univEmail);
 
-            // 기존 PENDING 인증이 있으면 무효화
+            // 1. 새 인증 코드 생성
+            String code = generateRandomCode();
+            log.debug("생성된 인증 코드: {}", code);
+
+            // 2. 기존 PENDING 인증이 있으면 무효화
             List<EmailVerification> previous = emailVerificationRepository.findByEmailAndStatus(univEmail, VerificationStatus.PENDING);
+            log.debug("기존 PENDING 인증 개수: {}", previous.size());
+
             for (EmailVerification v : previous) {
                 v.changeStatus(VerificationStatus.EXPIRED);
+                log.debug("기존 인증 코드 만료 처리 - ID: {}, 코드: {}", v.getId(), v.getCode());
             }
 
-            // 새 인증 객체 생성
+            // 3. 새 인증 객체 생성 및 저장
             EmailVerification verification = EmailVerification.builder()
                     .email(univEmail)
                     .code(code)
@@ -80,16 +86,16 @@ public class EmailVerificationService {
                     .status(VerificationStatus.PENDING)
                     .build();
 
-            // 새 인증 객체 저장
             emailVerificationRepository.save(verification);
+            log.debug("새 인증 객체 저장 완료 - ID: {}", verification.getId());
 
-            // 인증 이메일 전송
+            // 4. 인증 이메일 전송
             sendEmail(univEmail, code);
+            log.info("인증 이메일 전송 완료 - 대상 이메일: {}", univEmail);
 
             return true;
         } catch (Exception e) {
-            // 로그 찍기 등 예외 처리
-            log.error("이메일 인증 코드 전송 실패: {}", e.getMessage());
+            log.error("이메일 인증 코드 전송 실패 - 대상 이메일: {}, 에러: {}", univEmail, e.getMessage(), e);
             return false;
         }
     }
@@ -107,10 +113,11 @@ public class EmailVerificationService {
 
     /**
      * 인증 코드 검증 로직
+     * @param userId
      * @param univEmail
      * @param inputCode
      */
-    public boolean verifyCode(String univEmail, String inputCode) {
+    public boolean verifyCode(Long userId,String univEmail, String inputCode) {
         try{
             EmailVerification verification = emailVerificationRepository
                     .findTopByEmailAndStatusOrderByCreatedAtDesc(univEmail, VerificationStatus.PENDING)
@@ -130,7 +137,7 @@ public class EmailVerificationService {
             verification.changeStatus(VerificationStatus.VERIFIED);
             emailVerificationRepository.save(verification);
 
-            User user = userRepository.findByEmail(univEmail)
+            User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
             user.verifyUnivEmail(univEmail); // email 세팅, isUniversityVerified = true

@@ -63,11 +63,16 @@ public class EmailVerificationController {
     public ResponseEntity<ApiResponse<Boolean>> requestVerifyCode(
             @RequestParam("univEmail") String univEmail,
             @RequestParam("verifyCode") String verifyCode){
+        // 🔐 현재 로그인한 유저의 ID를 SecurityContext에서 가져옴
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
         return ResponseEntity.ok(
                 ApiResponse.<Boolean>builder()
                         .status(HttpStatus.OK.value()) // 200
                         .message("학교 이메일 코드 검증")
-                        .data(emailVerificationService.verifyCode(univEmail,verifyCode))
+                        .data(emailVerificationService.verifyCode(userId,univEmail,verifyCode))
                         .build());
     }
 
