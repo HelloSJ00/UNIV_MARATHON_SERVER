@@ -90,4 +90,14 @@ public class AuthService {
                 .map(University::getUniversityName) // universityName 필드만 추출
                 .toList(); // Java 16 이상. Java 8~11이면 .collect(Collectors.toList())
     }
+
+    /**
+     * 학교 선택시 해당 학교 전공 조회
+     */
+    public List<String> getMajorsByUniversityName(String universityName) {
+        List<Major> majors = majorRepository.findByUniversityName(universityName);
+        return majors.stream()
+                .map(Major::getName)
+                .toList();
+    }
 }

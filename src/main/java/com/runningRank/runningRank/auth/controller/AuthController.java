@@ -58,7 +58,7 @@ public class AuthController {
     }
 
     /**
-     *
+     * 회원가입시 모든 학교 조회
      */
     @GetMapping("/university/all")
     public ResponseEntity<ApiResponse<List<String>>> getAllUniversityNames() {
@@ -68,5 +68,32 @@ public class AuthController {
                 .message("모든 학교 조회 성공")
                 .data(universityNames)
                 .build());
+    }
+
+    /**
+     * 학교별 모든 전공 조회
+     * @return
+     */
+    @GetMapping("/university/major")
+    public ResponseEntity<ApiResponse<List<String>>> getMajorsByUniversityName(@RequestParam String universityName) {
+        try {
+            List<String> majors = authService.getMajorsByUniversityName(universityName);
+            return ResponseEntity.ok(
+                    ApiResponse.<List<String>>builder()
+                            .status(HttpStatus.OK.value())
+                            .message("전공 조회 성공")
+                            .data(majors)
+                            .build()
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.<List<String>>builder()
+                            .status(HttpStatus.BAD_REQUEST.value())
+                            .message("존재하지 않는 학교입니다.")
+                            .data(null)
+                            .build()
+                    );
+        }
     }
 }
