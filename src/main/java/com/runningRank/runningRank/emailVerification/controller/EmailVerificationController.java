@@ -20,6 +20,11 @@ public class EmailVerificationController {
 
     private final EmailVerificationService emailVerificationService;
 
+    /**
+     * 사용자가 인증하고픈 대학의 도메인과 사용자 대학의 메일 도메인이 일치하는지
+     * @param email
+     * @return
+     */
     @GetMapping
     public ResponseEntity<ApiResponse<Boolean>> requestUniversityEmailVerification(
             @RequestParam("email") String email

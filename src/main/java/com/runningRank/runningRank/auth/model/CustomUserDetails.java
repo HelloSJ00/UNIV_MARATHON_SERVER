@@ -21,7 +21,7 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public String getUniversity() {
-        return user.getUniversity().getUniversityName(); // enum이라면
+        return user.getUniversity().getUniversityName();
     }
 
     @Override
