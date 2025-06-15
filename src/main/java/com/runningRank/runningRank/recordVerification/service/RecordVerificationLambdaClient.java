@@ -19,11 +19,12 @@ public class RecordVerificationLambdaClient {
     private final LambdaClient lambdaClient;
 
     /**
-     *
+     * 기록증 저장된 s3url을 파라미터로 람다를 호출하면 기록증 텍스트를 추출하고 s3에 저장
+     * 저장된 s3url 반환
      * @param s3ImageUrl
      * @return
      */
-    public String callRecordVerification(String s3ImageUrl) {
+    public String callGoogleVisionOCR(String s3ImageUrl) {
         String payload = String.format("{\"s3ImageUrl\": \"%s\"}", s3ImageUrl);
 
         InvokeRequest request = InvokeRequest.builder()
@@ -53,5 +54,4 @@ public class RecordVerificationLambdaClient {
         InvokeResponse response = lambdaClient.invoke(request);
         return response.payload().asUtf8String(); // {"formattedText": "..."}
     }
-}
 }
