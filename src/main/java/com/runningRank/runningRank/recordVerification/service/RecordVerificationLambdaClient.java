@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.recordVerification.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
@@ -13,18 +14,9 @@ import software.amazon.awssdk.services.lambda.model.InvokeResponse;
  * 2. GPT4 -> 추출된 텍스트를 동일한 형태로 가공
  */
 @Component
+@RequiredArgsConstructor
 public class RecordVerificationLambdaClient {
     private final LambdaClient lambdaClient;
-
-    /**
-     * aws 설정
-     * 서울 리전으로 설정됨
-     */
-    public RecordVerificationLambdaClient() {
-        this.lambdaClient = LambdaClient.builder()
-                .region(Region.AP_NORTHEAST_2)
-                .build();
-    }
 
     /**
      *
