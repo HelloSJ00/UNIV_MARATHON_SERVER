@@ -29,6 +29,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	// 람다 호출 의존성 추가
+	implementation platform('software.amazon.awssdk:bom:2.25.14')
+	implementation 'software.amazon.awssdk:lambda'
+	implementation 'software.amazon.awssdk:core'
+
 	// 인증 메일 위한 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
