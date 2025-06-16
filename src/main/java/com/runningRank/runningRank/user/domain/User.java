@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,8 +69,8 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    // 5
-    private int age;
+    @Column(nullable = false)
+    private LocalDate birthDate;  // ex) 2000-05-14
 
     // 6
     // MALE,FEMALE
@@ -122,4 +124,7 @@ public class User {
         this.isUniversityVerified = true;
     }
 
+    public int getAge() {
+        return Period.between(this.birthDate, LocalDate.now()).getYears();
+    }
 }

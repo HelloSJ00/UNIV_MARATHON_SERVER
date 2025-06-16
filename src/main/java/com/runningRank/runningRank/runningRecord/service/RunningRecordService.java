@@ -24,9 +24,9 @@ public class RunningRecordService {
     /**
      * 학교별 종목 기록 랭킹 조회
      */
-    public List<SchoolTopRankDto> getRankingsBySchoolAndType(String universityName, RunningType type) {
+    public List<SchoolTopRankDto> getRankingsBySchoolAndType(String universityName, RunningType runningType) {
 
-        List<RunningRecord> records = runningRecordRepository.findRankingBySchoolAndType(universityName, type.name());
+        List<RunningRecord> records = runningRecordRepository.findRankingBySchoolAndType(universityName, runningType.name());
 
         AtomicInteger rankCounter = new AtomicInteger(1);
 

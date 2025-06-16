@@ -6,13 +6,15 @@ import com.runningRank.runningRank.user.domain.Role;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Builder
 @Getter
 public class UserResponse {
     private Long id;
     private String email;
     private String name;
-    private int age;
+    private LocalDate birthDate;
     private Gender gender;
     private University university;
     private String studentNumber;

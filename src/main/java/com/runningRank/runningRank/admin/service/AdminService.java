@@ -66,4 +66,26 @@ public class AdminService {
             return false;
         }
     }
+
+    @Transactional
+    public boolean rejectRecordVerification(Long recordVerificationId) {
+        try {
+            RecordVerification recordVerification = recordVerificationRepository.findById(recordVerificationId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 기록 검증 요청이 존재하지 않습니다."));
+
+            // 이미 처리된 상태면 중복 방지
+            if (recordVerification.getStatus() != VerificationStatus.PENDING) {
+                log.warn("이미 처리된 기록입니다. ID: {}", recordVerificationId);
+                return false;
+            }
+
+            // 상태를 REJECTED 또는 EXPIRED로 변경
+            recordVerification.changeStatus(VerificationStatus.EXPIRED);
+            return true;
+
+        } catch (Exception e) {
+            log.error("기록 검증 거절 중 오류 발생", e);
+            return false;
+        }
+    }
 }

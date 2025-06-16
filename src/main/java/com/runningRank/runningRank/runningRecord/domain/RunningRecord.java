@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @Table(
         name = "running_record",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "type"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "runningType"})
 )
 @EntityListeners(AuditingEntityListener.class)
 public class RunningRecord {

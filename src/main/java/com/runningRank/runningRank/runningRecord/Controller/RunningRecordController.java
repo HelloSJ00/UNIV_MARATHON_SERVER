@@ -28,7 +28,7 @@ public class RunningRecordController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<List<OverallRunningRankDto>>> getRanking(
-            @RequestParam("type") RunningType type
+            @RequestParam("runningType") RunningType type
     ) {
         List<OverallRunningRankDto> ranking = runningRecordService.getTopRankingsByType(type);
 
@@ -51,9 +51,9 @@ public class RunningRecordController {
     @GetMapping("/univRankings")
     public ResponseEntity<ApiResponse<List<SchoolTopRankDto>>> getRanking(
             @RequestParam("universityName") String universityName,
-            @RequestParam("type") RunningType type
+            @RequestParam("runningType") RunningType runningType
     ) {
-        List<SchoolTopRankDto> ranking = runningRecordService.getRankingsBySchoolAndType(universityName, type);
+        List<SchoolTopRankDto> ranking = runningRecordService.getRankingsBySchoolAndType(universityName, runningType);
         return ResponseEntity.ok(
                 ApiResponse.<List<SchoolTopRankDto>>builder()
                         .status(HttpStatus.OK.value())
