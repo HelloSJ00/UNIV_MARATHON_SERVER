@@ -36,6 +36,8 @@ public class RunningRecord {
     @Column(nullable = false)
     private int recordTimeInSeconds;
 
+    private String marathonName;
+
     // 기록 날짜
     private LocalDateTime recordDate;
 
@@ -48,4 +50,9 @@ public class RunningRecord {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void updateRecord(String newMarathonName,int newRecordTime){
+        this.marathonName = newMarathonName;
+        this.recordTimeInSeconds = newRecordTime;
+    }
 }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +29,17 @@ public class AdminService {
     private final UserRepository userRepository;
     private final RunningRecordRepository runningRecordRepository;
 
-    public Page<RecordVerification> getPendingRecordVerifications(Pageable pageable) {
-        return recordVerificationRepository.findByStatus(VerificationStatus.PENDING,pageable);
+    public Page<RecordVerificationInfo> getPendingRecordVerifications(Pageable pageable) {
+        return recordVerificationRepository.findByStatus(VerificationStatus.PENDING, pageable)
+                .map(record -> RecordVerificationInfo.builder()
+                        .userId(record.getUser().getId())
+                        .recordVerificationId(record.getId())
+                        .imageUrl(record.getImageUrl())
+                        .marathonName(record.getMarathonName())
+                        .runningType(record.getRunningType())
+                        .recordTime(record.getRecordTime())
+                        .status(record.getStatus())
+                        .build());
     }
 
     @Transactional
@@ -48,15 +58,24 @@ public class AdminService {
                 return false;
             }
 
-            // 3. 마라톤 기록 저장
-            RunningRecord runningRecord = RunningRecord.builder()
-                    .runningType(recordVerification.getRunningType())
-                    .recordTimeInSeconds(recordVerification.getRecordTime())
-                    .user(user)
-                    .build();
-            runningRecordRepository.save(runningRecord);
+            // 기존 기록이 있다면 수정
+            Optional<RunningRecord> existingRecordOpt = runningRecordRepository
+                    .findByUserIdAndRunningType(userId, recordVerification.getRunningType());
 
-            // 4. 검증 상태 변경
+            if (existingRecordOpt.isPresent()) {
+                RunningRecord existing = existingRecordOpt.get();
+                existing.updateRecord(recordVerification.getMarathonName(),recordVerification.getRecordTime()); // 이 메서드는 직접 정의해야 함
+            } else {
+                RunningRecord newRecord = RunningRecord.builder()
+                        .runningType(recordVerification.getRunningType())
+                        .marathonName(recordVerification.getMarathonName())
+                        .recordTimeInSeconds(recordVerification.getRecordTime())
+                        .user(user)
+                        .build();
+                runningRecordRepository.save(newRecord);
+            }
+
+            // 5. 검증 상태 변경
             recordVerification.changeStatus(VerificationStatus.VERIFIED);
 
             return true;

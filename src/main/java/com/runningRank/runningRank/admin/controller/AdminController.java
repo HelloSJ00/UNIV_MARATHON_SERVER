@@ -1,6 +1,7 @@
 package com.runningRank.runningRank.admin.controller;
 
 import com.runningRank.runningRank.admin.dto.RecordConfirmRequest;
+import com.runningRank.runningRank.admin.dto.RecordVerificationInfo;
 import com.runningRank.runningRank.admin.dto.RejectRequest;
 import com.runningRank.runningRank.admin.service.AdminService;
 import com.runningRank.runningRank.global.dto.ApiResponse;
@@ -21,7 +22,7 @@ public class AdminController {
     private final AdminService adminService;
 
     @GetMapping("/record-verifications")
-    public ResponseEntity<Page<RecordVerification>> getAllVerifications(
+    public ResponseEntity<Page<RecordVerificationInfo>> getAllVerifications(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(adminService.getPendingRecordVerifications(pageable));
     }

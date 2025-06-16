@@ -1,11 +1,13 @@
 package com.runningRank.runningRank.runningRecord.repository;
 
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
+import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RunningRecordRepository extends JpaRepository<RunningRecord,Long> {
 
@@ -65,4 +67,7 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
             nativeQuery = true
     )
     List<Object[]> findTop3PerSchoolAndTypeAll();
+
+    void deleteByUserIdAndRunningType(Long userId, RunningType runningType);
+    Optional<RunningRecord> findByUserIdAndRunningType(Long userId,RunningType runningType);
 }
