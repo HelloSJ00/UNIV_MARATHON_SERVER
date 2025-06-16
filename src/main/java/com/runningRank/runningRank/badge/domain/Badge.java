@@ -6,14 +6,18 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "badge")  // 명시적으로 추가해주는 걸 추천
+@EntityListeners(AuditingEntityListener.class)
 public class Badge {
 
     @Id
@@ -33,5 +37,9 @@ public class Badge {
     private RunningRank runningRank;      // "GOLD", "SILVER", "BRONZE"
 
     private LocalDate awardedAt;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }
 

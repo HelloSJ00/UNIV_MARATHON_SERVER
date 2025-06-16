@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 public class AwsConfig {
 
     @Configuration
-    @Profile("local")
+    @Profile("dev")
     static class LocalAwsConfig {
 
         @Bean

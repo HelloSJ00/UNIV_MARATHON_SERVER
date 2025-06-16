@@ -4,10 +4,22 @@ import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.user.domain.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RecordVerification {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -21,6 +33,11 @@ public class RecordVerification {
     private RunningType runningType;
 
     private int recordTime; // 초 단위
+
+    // 생성일
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     private VerificationStatus status; // PENDING, APPROVED, REJECTED

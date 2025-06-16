@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
         name = "running_record",
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "type"})
 )
+@EntityListeners(AuditingEntityListener.class)
 public class RunningRecord {
 
     @Id
@@ -35,6 +38,11 @@ public class RunningRecord {
 
     // 기록 날짜
     private LocalDateTime recordDate;
+
+    // 생성일
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     // 유저와의 연관관계
     @ManyToOne(fetch = FetchType.LAZY)
