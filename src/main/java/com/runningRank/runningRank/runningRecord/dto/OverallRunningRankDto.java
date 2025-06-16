@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class OverallRunningRankDto {
     private int rank;
     private RunningType type;
+    private String marathonName;
     private int recordTimeInSeconds;
     private LocalDateTime recordDate;
     private SimpleUserDto user;

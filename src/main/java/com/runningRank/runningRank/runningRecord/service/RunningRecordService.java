@@ -34,6 +34,7 @@ public class RunningRecordService {
                 .map(record -> SchoolTopRankDto.builder()
                         .rank(rankCounter.getAndIncrement())
                         .type(record.getRunningType())
+                        .marathonName(record.getMarathonName())
                         .recordTimeInSeconds(record.getRecordTimeInSeconds())
                         .recordDate(record.getRecordDate())
                         .user(new SimpleUserDto(
@@ -61,6 +62,7 @@ public class RunningRecordService {
                 .map(record -> OverallRunningRankDto.builder()
                         .rank(rankCounter.getAndIncrement())
                         .type(record.getRunningType())
+                        .marathonName(record.getMarathonName())
                         .recordTimeInSeconds(record.getRecordTimeInSeconds())
                         .recordDate(record.getRecordDate())
                         .user(new SimpleUserDto(

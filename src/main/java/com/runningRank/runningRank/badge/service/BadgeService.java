@@ -42,10 +42,11 @@ public class BadgeService {
         List<RunningRankDto> dtos = rows.stream()
                 .map(row -> new RunningRankDto(
                         (String) row[0],                         // school
-                        (String) row[1],                         // type
-                        ((Number) row[2]).longValue(),           // userId
-                        (Integer) row[3],                        // record_time_in_seconds
-                        ((Number) row[4]).intValue()             // rank
+                        (String) row[1],
+                        (String) row[2],// type
+                        ((Number) row[3]).longValue(),           // userId
+                        (Integer) row[4],                        // record_time_in_seconds
+                        ((Number) row[5]).intValue()             // rank
                 ))
                 .toList();
 
