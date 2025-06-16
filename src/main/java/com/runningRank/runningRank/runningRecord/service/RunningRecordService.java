@@ -33,7 +33,7 @@ public class RunningRecordService {
         return records.stream()
                 .map(record -> SchoolTopRankDto.builder()
                         .rank(rankCounter.getAndIncrement())
-                        .type(record.getType())
+                        .type(record.getRunningType())
                         .recordTimeInSeconds(record.getRecordTimeInSeconds())
                         .recordDate(record.getRecordDate())
                         .user(new SimpleUserDto(
@@ -60,7 +60,7 @@ public class RunningRecordService {
         return records.stream()
                 .map(record -> OverallRunningRankDto.builder()
                         .rank(rankCounter.getAndIncrement())
-                        .type(record.getType())
+                        .type(record.getRunningType())
                         .recordTimeInSeconds(record.getRecordTimeInSeconds())
                         .recordDate(record.getRecordDate())
                         .user(new SimpleUserDto(

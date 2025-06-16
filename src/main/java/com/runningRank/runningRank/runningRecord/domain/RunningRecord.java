@@ -30,7 +30,7 @@ public class RunningRecord {
     // 러닝 타입: TEN_KM, HALF, FULL
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = false)
-    private RunningType type;
+    private RunningType runningType;
 
     // 기록 시간 (예: 초 단위로 저장)
     @Column(nullable = false)
