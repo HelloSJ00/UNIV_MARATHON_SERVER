@@ -8,7 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     /**
@@ -63,8 +69,8 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    // 5
-    private int age;
+    @Column(nullable = false)
+    private LocalDate birthDate;  // ex) 2000-05-14
 
     // 6
     // MALE,FEMALE
@@ -105,13 +111,20 @@ public class User {
     @Column(nullable = true, unique = true)
     private String universityEmail;
 
+    // 16. 계정 생성일
+    @Column(nullable = true)
+    @CreatedDate
+    private LocalDateTime createdAt;
+
     @Column(nullable = false)
     private boolean isUniversityVerified;
-
 
     public void verifyUnivEmail(String univEmail){
         this.universityEmail = univEmail;
         this.isUniversityVerified = true;
     }
 
+    public int getAge() {
+        return Period.between(this.birthDate, LocalDate.now()).getYears();
+    }
 }

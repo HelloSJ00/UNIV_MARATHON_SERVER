@@ -3,6 +3,8 @@ package com.runningRank.runningRank.auth.dto;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 public class KakaoSignupRequest {
     // 1  이메일 (아이디)
@@ -22,7 +24,7 @@ public class KakaoSignupRequest {
     private String oauthId;
 
     // 4. 나이
-    private int age;              // 나이
+    private LocalDate birthDate;             // 나이
 
     // 5. 성별
     private String gender;        // 성별 (예: "MALE", "FEMALE")

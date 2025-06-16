@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -16,8 +18,9 @@ import java.time.LocalDateTime;
 @Builder
 @Table(
         name = "running_record",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "type"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "runningType"})
 )
+@EntityListeners(AuditingEntityListener.class)
 public class RunningRecord {
 
     @Id
@@ -27,17 +30,29 @@ public class RunningRecord {
     // 러닝 타입: TEN_KM, HALF, FULL
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = false)
-    private RunningType type;
+    private RunningType runningType;
 
     // 기록 시간 (예: 초 단위로 저장)
     @Column(nullable = false)
     private int recordTimeInSeconds;
 
+    private String marathonName;
+
     // 기록 날짜
     private LocalDateTime recordDate;
+
+    // 생성일
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     // 유저와의 연관관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void updateRecord(String newMarathonName,int newRecordTime){
+        this.marathonName = newMarathonName;
+        this.recordTimeInSeconds = newRecordTime;
+    }
 }

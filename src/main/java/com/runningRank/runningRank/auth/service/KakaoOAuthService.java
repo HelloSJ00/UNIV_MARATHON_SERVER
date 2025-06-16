@@ -58,7 +58,7 @@ public class KakaoOAuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword())) // 비밀번호 암호화
                 .name(request.getName())
-                .age(request.getAge())
+                .birthDate(request.getBirthDate())
                 .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
                 .university(university) // 동일하게 처리 가능
                 .major(major)
@@ -98,7 +98,7 @@ public class KakaoOAuthService {
                 .name(request.getName())
                 .oauthProvider("kakao")
                 .oauthId(request.getOauthId())
-                .age(request.getAge())
+                .birthDate(request.getBirthDate())
                 .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
                 .university(university) // 동일하게 처리 가능
                 // .major(request.getMajor())
@@ -112,7 +112,7 @@ public class KakaoOAuthService {
                 .id(savedUser.getId())
                 .email(savedUser.getEmail())
                 .name(savedUser.getName())
-                .age(savedUser.getAge())
+                .birthDate(request.getBirthDate())
                 .gender(savedUser.getGender())
                 .university(savedUser.getUniversity())
                 .studentNumber(savedUser.getStudentNumber())

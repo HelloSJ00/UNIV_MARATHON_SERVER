@@ -1,45 +1,50 @@
-package com.runningRank.runningRank.badge.domain;
+package com.runningRank.runningRank.recordVerification.domain;
 
+import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Table(name = "badge")  // 명시적으로 추가해주는 걸 추천
 @EntityListeners(AuditingEntityListener.class)
-public class Badge {
-
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+public class RecordVerification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    private RunningType type;
-
-    private String unversity; // 전공이 소속된 학교
+    private String imageUrl;
+    private String marathonName;
 
     @Enumerated(EnumType.STRING)
-    private RunningRank runningRank;      // "GOLD", "SILVER", "BRONZE"
+    private RunningType runningType;
 
-    private LocalDate awardedAt;
+    private int recordTime; // 초 단위
 
+    // 생성일
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-}
 
+    @Enumerated(EnumType.STRING)
+    private VerificationStatus status; // PENDING, APPROVED, REJECTED
+
+    public void changeStatus(VerificationStatus status){
+        this.status = status;
+    }
+}

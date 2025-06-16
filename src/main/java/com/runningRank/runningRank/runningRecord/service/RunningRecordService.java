@@ -24,16 +24,17 @@ public class RunningRecordService {
     /**
      * 학교별 종목 기록 랭킹 조회
      */
-    public List<SchoolTopRankDto> getRankingsBySchoolAndType(String universityName, RunningType type) {
+    public List<SchoolTopRankDto> getRankingsBySchoolAndType(String universityName, RunningType runningType) {
 
-        List<RunningRecord> records = runningRecordRepository.findRankingBySchoolAndType(universityName, type.name());
+        List<RunningRecord> records = runningRecordRepository.findRankingBySchoolAndType(universityName, runningType.name());
 
         AtomicInteger rankCounter = new AtomicInteger(1);
 
         return records.stream()
                 .map(record -> SchoolTopRankDto.builder()
                         .rank(rankCounter.getAndIncrement())
-                        .type(record.getType())
+                        .type(record.getRunningType())
+                        .marathonName(record.getMarathonName())
                         .recordTimeInSeconds(record.getRecordTimeInSeconds())
                         .recordDate(record.getRecordDate())
                         .user(new SimpleUserDto(
@@ -60,7 +61,8 @@ public class RunningRecordService {
         return records.stream()
                 .map(record -> OverallRunningRankDto.builder()
                         .rank(rankCounter.getAndIncrement())
-                        .type(record.getType())
+                        .type(record.getRunningType())
+                        .marathonName(record.getMarathonName())
                         .recordTimeInSeconds(record.getRecordTimeInSeconds())
                         .recordDate(record.getRecordDate())
                         .user(new SimpleUserDto(

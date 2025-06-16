@@ -3,6 +3,8 @@ package com.runningRank.runningRank.auth.dto;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 public class SignUpRequest {
 
@@ -16,8 +18,8 @@ public class SignUpRequest {
     // 3. 이름
     private String name;          // 이름
 
-    // 4. 나이
-    private int age;              // 나이
+    // 4. 나이 생년월일
+    private LocalDate birthDate;           // 나이
 
     // 5. 성별
     private String gender;        // 성별 (예: "MALE", "FEMALE")
