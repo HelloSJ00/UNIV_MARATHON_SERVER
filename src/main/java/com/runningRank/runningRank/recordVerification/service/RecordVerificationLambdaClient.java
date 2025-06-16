@@ -25,10 +25,10 @@ public class RecordVerificationLambdaClient {
      * @return
      */
     public String callGoogleVisionOCR(String s3ImageUrl) {
-        String payload = String.format("{\"s3ImageUrl\": \"%s\"}", s3ImageUrl);
+        String payload = String.format("{\"s3_url\": \"%s\"}", s3ImageUrl);
 
         InvokeRequest request = InvokeRequest.builder()
-                .functionName("record-verification-handler")
+                .functionName("univ-marathon-record-ocr")
                 .payload(SdkBytes.fromUtf8String(payload))
                 .build();
 
@@ -40,14 +40,22 @@ public class RecordVerificationLambdaClient {
      * 추출된 텍스트를 원하는 형태로 가공하는로직
      * callRecordVerification 에서 반환된 s3url을 파라미터로 aws lambda를 호출하면
      * 원하는 형태로 텍스트를 가공한 s3url이 반환됨
+     * Response
+     * {
+     *     "이름" : "오승준"
+     *     "종목" : "10K"
+     *     "기록" : "00:39:03"
+     *     "참가 대회" : "대전서구청장배마라톤"
+     *     "createdAt" : 2025/05/18
+     * }
      * @param ocrResultS3Key
      * @return
      */
     public String callGptFormattingLambda(String ocrResultS3Key) {
-        String payload = String.format("{\"s3Key\": \"%s\"}", ocrResultS3Key);
+        String payload = String.format("{\"s3_url\": \"%s\"}", ocrResultS3Key);
 
         InvokeRequest request = InvokeRequest.builder()
-                .functionName("record-formatting-handler") // GPT 람다
+                .functionName("univ-marathon-ocr-to-json") // GPT 람다
                 .payload(SdkBytes.fromUtf8String(payload))
                 .build();
 

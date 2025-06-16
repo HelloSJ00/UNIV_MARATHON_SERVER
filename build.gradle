@@ -23,24 +23,27 @@ repositories {
 	mavenCentral()
 }
 
+
 dependencies {
+	// 🔥 반드시 맨 위에 선언해야 아래에 적용돼!
+	implementation platform('software.amazon.awssdk:bom:2.25.14')
+
+	// AWS SDK
+	implementation 'software.amazon.awssdk:s3'
+	implementation 'software.amazon.awssdk:lambda'
+
+	// 일반 Spring 의존성들
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	// 람다 호출 의존성 추가
-	implementation platform('software.amazon.awssdk:bom:2.25.14')
-	implementation 'software.amazon.awssdk:lambda'
-	implementation 'software.amazon.awssdk:core'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-	// 인증 메일 위한 의존성 추가
+	// 이메일, Swagger, JWT, Lombok 등등 나머지 의존성들 ...
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
-	// swagger 의존성 추가
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
-	// JSON 처리를 위한 Jackson 연동
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'

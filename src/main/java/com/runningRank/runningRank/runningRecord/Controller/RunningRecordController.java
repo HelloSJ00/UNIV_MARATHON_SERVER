@@ -44,7 +44,7 @@ public class RunningRecordController {
 
     /**
      * 특정 학교 랭킹 조회
-     * @param school
+     * @param universityName
      * @param type
      * @return
      */
