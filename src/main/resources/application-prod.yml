@@ -38,12 +38,8 @@ kakao:
 logging:
   level:
     root: info
-<<<<<<< HEAD
     com.runningRank: debug
 
 server:
   address: 0.0.0.0
   port: 8080
-=======
-    com.runningRank: debug
->>>>>>> fd4a25d (chore : cicd 리베이스)
