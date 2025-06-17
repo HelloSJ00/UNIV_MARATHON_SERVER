@@ -70,6 +70,7 @@ public class AdminService {
                         .runningType(recordVerification.getRunningType())
                         .marathonName(recordVerification.getMarathonName())
                         .recordTimeInSeconds(recordVerification.getRecordTime())
+                        .createdAt(LocalDateTime.now())
                         .user(user)
                         .build();
                 runningRecordRepository.save(newRecord);

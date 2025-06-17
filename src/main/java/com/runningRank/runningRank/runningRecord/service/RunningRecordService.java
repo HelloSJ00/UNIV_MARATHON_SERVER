@@ -36,7 +36,6 @@ public class RunningRecordService {
                         .type(record.getRunningType())
                         .marathonName(record.getMarathonName())
                         .recordTimeInSeconds(record.getRecordTimeInSeconds())
-                        .recordDate(record.getRecordDate())
                         .user(new SimpleUserDto(
                                 record.getUser().getId(),
                                 record.getUser().getName(),
@@ -64,7 +63,6 @@ public class RunningRecordService {
                         .type(record.getRunningType())
                         .marathonName(record.getMarathonName())
                         .recordTimeInSeconds(record.getRecordTimeInSeconds())
-                        .recordDate(record.getRecordDate())
                         .user(new SimpleUserDto(
                                 record.getUser().getId(),
                                 record.getUser().getName(),

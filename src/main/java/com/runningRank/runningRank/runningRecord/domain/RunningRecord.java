@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
         name = "running_record",
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "runningType"})
 )
-@EntityListeners(AuditingEntityListener.class)
 public class RunningRecord {
 
     @Id
@@ -38,11 +37,7 @@ public class RunningRecord {
 
     private String marathonName;
 
-    // 기록 날짜
-    private LocalDateTime recordDate;
-
-    // 생성일
-    @CreatedDate
+    // 생성일 + 수정일
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -54,5 +49,6 @@ public class RunningRecord {
     public void updateRecord(String newMarathonName,int newRecordTime){
         this.marathonName = newMarathonName;
         this.recordTimeInSeconds = newRecordTime;
+        this.createdAt = LocalDateTime.now();
     }
 }
