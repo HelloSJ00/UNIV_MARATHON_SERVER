@@ -43,3 +43,4 @@ jobs:
                   aws s3 cp s3://univ-marathon-rank/builds/app.jar ~/app.jar --region ap-northeast-2
                   pkill -f 'java -jar' || true
                   nohup java -jar -Dspring.profiles.active=prod ~/app.jar > ~/log.txt 2>&1 &
+
