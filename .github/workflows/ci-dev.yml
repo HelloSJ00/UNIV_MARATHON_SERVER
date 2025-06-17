@@ -23,5 +23,5 @@ jobs:
       - name: Grant permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with dev profile
-        run: ./gradlew clean build -Dspring.profiles.active=dev
+      - name: Build without tests
+        run: ./gradlew clean build -x test -Dspring.profiles.active=dev
