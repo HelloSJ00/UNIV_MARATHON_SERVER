@@ -23,17 +23,17 @@ jobs:
       - name: Grant permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Build and Test (with prod profile)
+      - name: 빌드
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
 
-      - name: Upload to S3
+      - name: S3에 업로드
         run: |
           aws s3 cp build/libs/runningRank-0.0.1-SNAPSHOT.jar  s3://univ-marathon-rank/builds/app.jar --region ap-northeast-2
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Deploy on EC2
+      - name: EC2 배포
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
