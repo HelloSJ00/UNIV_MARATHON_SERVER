@@ -1,0 +1,28 @@
+name: CI - Dev Build and Test
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant permission to gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build without tests
+        run: ./gradlew clean build -x test -Dspring.profiles.active=dev
+

@@ -1,0 +1,53 @@
+spring:
+  datasource:
+<<<<<<< HEAD
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+=======
+    url: ${DB_URL}
+>>>>>>> fd4a25d (chore : cicd 리베이스)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 3600000
+  refresh-token-expiration: 1209600000
+
+kakao:
+  client-id: ${KAKAO_CLIENT_ID}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
+
+logging:
+  level:
+    root: info
+<<<<<<< HEAD
+    com.runningRank: debug
+
+server:
+  address: 0.0.0.0
+  port: 8080
+=======
+    com.runningRank: debug
+>>>>>>> fd4a25d (chore : cicd 리베이스)
