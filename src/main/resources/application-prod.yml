@@ -39,3 +39,7 @@ logging:
   level:
     root: info
     com.runningRank: debug
+
+server:
+  address: 0.0.0.0
+  port: 8080
