@@ -25,3 +25,4 @@ jobs:
 
       - name: Build without tests
         run: ./gradlew clean build -x test -Dspring.profiles.active=dev
+

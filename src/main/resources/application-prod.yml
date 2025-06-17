@@ -1,6 +1,10 @@
 spring:
   datasource:
+<<<<<<< HEAD
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+=======
+    url: ${DB_URL}
+>>>>>>> fd4a25d (chore : cicd 리베이스)
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -38,8 +42,12 @@ kakao:
 logging:
   level:
     root: info
+<<<<<<< HEAD
     com.runningRank: debug
 
 server:
   address: 0.0.0.0
   port: 8080
+=======
+    com.runningRank: debug
+>>>>>>> fd4a25d (chore : cicd 리베이스)
