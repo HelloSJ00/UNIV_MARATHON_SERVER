@@ -25,3 +25,21 @@ jobs:
 
       - name: Build and Test (with prod profile)
         run: ./gradlew clean build -Dspring.profiles.active=prod
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp build/libs/runningRank-0.0.1-SNAPSHOT.jar  s3://univ-marathon-rank/builds/app.jar --region ap-northeast-2
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+                  aws s3 cp s3://univ-marathon-rank/builds/app.jar ~/app.jar --region ap-northeast-2
+                  pkill -f 'java -jar' || true
+                  nohup java -jar -Dspring.profiles.active=prod ~/app.jar > ~/log.txt 2>&1 &
