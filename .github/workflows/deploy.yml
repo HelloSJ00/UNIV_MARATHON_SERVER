@@ -29,9 +29,9 @@ jobs:
       - name: Upload to S3
         run: |
           aws s3 cp build/libs/runningRank-0.0.1-SNAPSHOT.jar  s3://univ-marathon-rank/builds/app.jar --region ap-northeast-2
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Deploy on EC2
         uses: appleboy/ssh-action@master
