@@ -1,10 +1,6 @@
 spring:
   datasource:
-<<<<<<< HEAD
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-=======
-    url: ${DB_URL}
->>>>>>> fd4a25d (chore : cicd 리베이스)
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
