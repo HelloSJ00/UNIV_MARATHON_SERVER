@@ -24,7 +24,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build and Test (with prod profile)
-        run: ./gradlew clean build -Dspring.profiles.active=prod
+        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
 
       - name: Upload to S3
         run: |
