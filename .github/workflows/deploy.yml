@@ -44,6 +44,8 @@ jobs:
             # Systemd 데몬 리로드 (새 서비스 파일 또는 변경 사항 적용을 위함)
             sudo systemctl daemon-reload
             
-            # 애플리케이션 서비스 재시작
-            sudo systemctl restart univ-marathon-rank.service #
+            sudo systemctl start univ-marathon-rank
+            sudo systemctl enable univ-marathon-rank  # 서버 재부팅 시 자동 시작
+            
+            sudo systemctl status univ-marathon-rank  # 상태 확인
 
