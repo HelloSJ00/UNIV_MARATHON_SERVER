@@ -63,14 +63,22 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+
+        // --- 여기를 수정합니다 ---
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000", // 로컬 개발 환경
+                "https://univ-marathon-rank-client-isskon42k-hellosj00s-projects.vercel.app" // Vercel 배포 도메인
+                // 다른 운영 환경 도메인이 있다면 여기에 추가
+        ));
+        // --- 수정 끝 ---
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
+        config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
+        config.setAllowCredentials(true); // 자격 증명 (쿠키, Authorization 헤더 등) 허용
+        config.setMaxAge(3600L); // Pre-flight 요청 캐싱 시간 (1시간)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", config); // 모든 경로에 CORS 설정 적용
 
         return source;
     }
