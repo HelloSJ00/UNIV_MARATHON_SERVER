@@ -34,6 +34,52 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
     );
 
     /**
+     * 학교별 종목별 러닝 기록 랭킹 조회 남자
+     * @param universityName
+     * @param runningType
+     * @return
+     */
+    @Query(
+            value = "SELECT rr.* " +
+                    "FROM running_record rr " +
+                    "JOIN user u ON rr.user_id = u.id " +
+                    "JOIN university uni ON u.university_id = uni.id " +
+                    "WHERE uni.university_name = :universityName " +
+                    "AND rr.running_type = :runningType " +
+                    "AND u.gender = 'MALE' " +  // ✅ 문자열 상수는 작은 따옴표로
+                    "ORDER BY rr.record_time_in_seconds ASC " +
+                    "LIMIT 100",
+            nativeQuery = true
+    )
+    List<RunningRecord> findRankingBySchoolAndTypeAndMale(
+            @Param("universityName") String universityName,
+            @Param("runningType") String runningType
+    );
+
+    /**
+     * 학교별 종목별 러닝 기록 랭킹 조회 여자
+     * @param universityName
+     * @param runningType
+     * @return
+     */
+    @Query(
+            value = "SELECT rr.* " +
+                    "FROM running_record rr " +
+                    "JOIN user u ON rr.user_id = u.id " +
+                    "JOIN university uni ON u.university_id = uni.id " +
+                    "WHERE uni.university_name = :universityName " +
+                    "AND rr.running_type = :runningType " +
+                    "AND u.gender = 'FEMALE' " +  // ✅ 문자열 상수는 작은 따옴표로
+                    "ORDER BY rr.record_time_in_seconds ASC " +
+                    "LIMIT 100",
+            nativeQuery = true
+    )
+    List<RunningRecord> findRankingBySchoolAndTypeAndFemale(
+            @Param("universityName") String universityName,
+            @Param("runningType") String runningType
+    );
+
+    /**
      * 종목별 통합 랭킹 순위
      * @param runningType
      * @return
@@ -48,6 +94,44 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
             nativeQuery = true
     )
     List<RunningRecord> findTop100ByTypeOrderByRecordTimeAsc(
+            @Param("runningType") String runningType
+    );
+
+    /**
+     * 종목별 통합 랭킹 순위 남자
+     * @param runningType
+     * @return
+     */
+    @Query(
+            value = "SELECT rr.* " +
+                    "FROM running_record rr " +
+                    "JOIN user u ON rr.user_id = u.id " +
+                    "WHERE rr.running_type = :runningType " +
+                    "AND u.gender = 'MALE' " +  // ✅ 문자열 상수는 작은 따옴표로
+                    "ORDER BY rr.record_time_in_seconds ASC " +
+                    "LIMIT 100",
+            nativeQuery = true
+    )
+    List<RunningRecord> findTop100ByTypeOrderByRecordTimeAscAndMale(
+            @Param("runningType") String runningType
+    );
+
+    /**
+     * 종목별 통합 랭킹 순위 여자
+     * @param runningType
+     * @return
+     */
+    @Query(
+            value = "SELECT rr.* " +
+                    "FROM running_record rr " +
+                    "JOIN user u ON rr.user_id = u.id " +
+                    "WHERE rr.running_type = :runningType " +
+                    "AND u.gender = 'FEMALE' " +  // ✅ 문자열 상수는 작은 따옴표로
+                    "ORDER BY rr.record_time_in_seconds ASC " +
+                    "LIMIT 100",
+            nativeQuery = true
+    )
+    List<RunningRecord> findTop100ByTypeOrderByRecordTimeAscAndFemale(
             @Param("runningType") String runningType
     );
 

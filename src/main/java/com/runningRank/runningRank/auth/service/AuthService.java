@@ -10,6 +10,8 @@ import com.runningRank.runningRank.university.repository.UniversityRepository;
 import com.runningRank.runningRank.user.domain.Gender;
 import com.runningRank.runningRank.user.domain.Role;
 import com.runningRank.runningRank.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.runningRank.runningRank.user.domain.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -115,5 +117,38 @@ public class AuthService {
         return majors.stream()
                 .map(Major::getName)
                 .toList();
+    }
+
+    /**
+     * 내 정보 수정
+     */
+    @Transactional
+    public boolean updateUserInfo(UserUpdateRequest request, Long userId) {
+        User user = userRepository.getReferenceById(userId); // 사용자를 찾거나 프록시 로드
+
+        University newUniversity = null;
+        Major newMajor = null;
+
+        // 1. 대학교 이름으로 University 엔티티 조회 (요청에 universityName이 있다면)
+        if (request.getUniversityName() != null && !request.getUniversityName().isEmpty()) {
+            newUniversity = universityRepository.findByUniversityName(request.getUniversityName())
+                    .orElseThrow(() -> new EntityNotFoundException("대학교를 찾을 수 없습니다: " + request.getUniversityName()));
+        }
+
+        // 2. 전공 이름과 (선택적으로) 대학교로 Major 엔티티 조회 (요청에 major가 있다면)
+        // 전공은 특정 대학교에 속하는 경우가 많으므로, 대학교와 전공명을 함께 사용하여 조회하는 것이 일반적입니다.
+        if (request.getMajor() != null && !request.getMajor().isEmpty()) {
+                newMajor = majorRepository.findByNameAndUniversityName(request.getMajor(), newUniversity.getUniversityName())
+                        .orElseThrow(() -> new EntityNotFoundException("해당 대학교에서 전공을 찾을 수 없습니다: " + request.getMajor()));
+            }
+
+        // 3. User 엔티티의 업데이트 메서드 호출
+        // isChangeUniversity 플래그와 조회된 엔티티들을 함께 전달
+        user.updateInfo(request, newUniversity, newMajor);
+
+        // @Transactional 덕분에 변경사항이 자동으로 영속화됩니다.
+        // userRepository.save(user); // 명시적 save는 필수는 아니지만, 명확성을 위해 사용 가능
+
+        return true;
     }
 }
