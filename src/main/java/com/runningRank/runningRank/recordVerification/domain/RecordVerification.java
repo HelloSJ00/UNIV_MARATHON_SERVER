@@ -19,6 +19,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "runningType", "status"})
+        }
+)
 public class RecordVerification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

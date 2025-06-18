@@ -8,6 +8,7 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
 public class AwsConfig {
@@ -20,7 +21,15 @@ public class AwsConfig {
         public S3Client localS3Client() {
             return S3Client.builder()
                     .region(Region.AP_NORTHEAST_2)
-                    .credentialsProvider(ProfileCredentialsProvider.create("univ-marathon")) // 로컬에서만 사용
+                    .credentialsProvider(ProfileCredentialsProvider.create("univ-marathon")) // 로컬에서 사용
+                    .build();
+        }
+
+        @Bean
+        public S3Presigner localS3Presigner() {
+            return S3Presigner.builder()
+                    .region(Region.AP_NORTHEAST_2)
+                    .credentialsProvider(ProfileCredentialsProvider.create("univ-marathon"))
                     .build();
         }
 
@@ -41,14 +50,23 @@ public class AwsConfig {
         public S3Client prodS3Client() {
             return S3Client.builder()
                     .region(Region.AP_NORTHEAST_2)
-                    .build(); // EC2 IAM 역할을 자동 인식
+                    .credentialsProvider(DefaultCredentialsProvider.create()) // EC2의 IAM 역할 자동 인식
+                    .build();
+        }
+
+        @Bean
+        public S3Presigner prodS3Presigner() {
+            return S3Presigner.builder()
+                    .region(Region.AP_NORTHEAST_2)
+                    .credentialsProvider(DefaultCredentialsProvider.create())
+                    .build();
         }
 
         @Bean
         public LambdaClient prodLambdaClient() {
             return LambdaClient.builder()
                     .region(Region.AP_NORTHEAST_2)
-                    .build(); // 마찬가지로 자동
+                    .credentialsProvider(DefaultCredentialsProvider.create())
+                    .build();
         }
-    }
-}
+}}

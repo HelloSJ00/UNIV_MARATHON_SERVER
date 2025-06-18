@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.user.domain;
 
+import com.runningRank.runningRank.auth.dto.UserUpdateRequest;
 import com.runningRank.runningRank.major.domain.Major;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.university.domain.University;
@@ -126,5 +127,52 @@ public class User {
 
     public int getAge() {
         return Period.between(this.birthDate, LocalDate.now()).getYears();
+    }
+
+    /**
+     * 사용자 정보를 업데이트하는 비즈니스 메서드
+     * 이 메서드는 University와 Major 엔티티 객체를 직접 받도록 변경합니다.
+     * DTO의 String 값을 엔티티로 변환하는 책임은 서비스 레이어에 있습니다.
+     */
+    public void updateInfo(UserUpdateRequest request, University newUniversity, Major newMajor) {
+        if (request.getName() != null) {
+            this.name = request.getName();
+        }
+        if (request.getBirthDate() != null) {
+            this.birthDate = request.getBirthDate();
+        }
+        if (request.getGender() != null) {
+            this.gender = Gender.valueOf(request.getGender());
+        }
+        if (request.getUniversityEmail() != null) {
+            this.universityEmail = request.getUniversityEmail();
+        }
+
+        // University 엔티티가 변경되었을 경우에만 업데이트
+        // (null이 아니고, 기존과 다른 경우)
+        if (newUniversity != null && !newUniversity.equals(this.university)) {
+            this.university = newUniversity;
+            // 대학교가 변경되면 인증 상태 초기화
+            this.isUniversityVerified = false;
+        }
+
+        // Major 엔티티가 변경되었을 경우에만 업데이트
+        if (newMajor != null && !newMajor.equals(this.major)) {
+            this.major = newMajor;
+            // 전공이 변경되면 인증 상태 초기화
+            // (보통 대학교 변경 시만 초기화하지만, 전공 변경도 포함할 수 있음)
+            if (!request.isChangeUniversity()) { // 대학교 변경으로 이미 false가 된 경우가 아니라면
+                this.isUniversityVerified = false;
+            }
+        }
+
+        // isChangeUniversity는 명시적인 요청에 따라 isUniversityVerified를 초기화 (앞선 로직과 중복될 수 있으므로 조절)
+        // 만약 isChangeUniversity가 '사용자가 대학교/전공 정보를 바꿨다고 명시적으로 체크한 경우'라면
+        // 위에 University/Major 객체 변경으로 isUniversityVerified가 false 되는 로직보다 우선하거나 함께 적용되어야 합니다.
+        // 여기서는 request.isChangeUniversity()가 true일 때 무조건 false로 만들도록 처리합니다.
+        if (request.isChangeUniversity()) {
+            this.isUniversityVerified = false;
+        }
+        // request.isChangeUniversity()가 false면 isUniversityVerified는 변경하지 않음
     }
 }
