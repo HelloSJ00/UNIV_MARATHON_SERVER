@@ -38,39 +38,48 @@ public class KakaoOAuthService {
     @Value("${kakao.redirect-uri}")
     private String redirectUri;
 
-    public TokenResponse kakaoSignUp(KakaoSignupRequest request){
-        // 이메일 중복 체크
+    public LoginResponse kakaoSignUp(KakaoSignupRequest request){
+        // 1. 이메일 중복 체크
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
 
-        // 사용자가 전공명을 text로 보내온다고 가정
-        String majorName = request.getMajor();  // 예: "컴퓨터공학과"
-
-        // 전공명으로 Major 엔티티 조회
+        // 2. 전공, 학교 조회
+        String majorName = request.getMajor();
         Major major = majorRepository.findByName(majorName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 전공이 존재하지 않습니다."));
 
         University university = universityRepository.findByUniversityName(request.getUniversity())
                 .orElseThrow(() -> new IllegalArgumentException("해당 학교가 존재하지 않습니다."));
 
+        // 3. 유저 생성 및 저장
         User user = User.builder()
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // 비밀번호 암호화
+                .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .birthDate(request.getBirthDate())
-                .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
-                .university(university) // 동일하게 처리 가능
+                .gender(Gender.valueOf(request.getGender().toUpperCase()))
+                .university(university)
                 .major(major)
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)
                 .build();
 
         userRepository.save(user);
-        String jwt = jwtProvider.createAccessToken(user.getEmail(),user.getRole());
-        return new TokenResponse(jwt,"Barear");
-    }
 
+        // 4. JWT 발급
+        String jwt = jwtProvider.createAccessToken(user.getEmail(), user.getRole());
+
+        // 5. 유저 정보 DTO 생성
+        UserInfo userInfo = UserInfo.from(user);
+
+        // 6. 통합 응답 반환
+        return LoginResponse.builder()
+                .accessToken(jwt)
+                .tokenType("Bearer")
+                .user(userInfo)
+                .build();
+    }
     /**
      * 카카오 회원가입
      * @param request

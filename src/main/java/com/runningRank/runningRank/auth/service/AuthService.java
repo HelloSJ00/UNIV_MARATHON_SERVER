@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.auth.service;
 
+import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.jwt.JwtProvider;
 import com.runningRank.runningRank.major.domain.Major;
@@ -72,17 +73,28 @@ public class AuthService {
                 .build();
     }
 
-    public TokenResponse login(LoginRequest request){
+    public LoginResponse login(LoginRequest request){
+        // 1. 유저 조회
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 이메일입니다."));
 
+        // 2. 비밀번호 확인
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
-        // 인증 성공 시 JWT 발급
+
+        // 3. 토큰 생성
         String token = jwtProvider.createAccessToken(user.getEmail(), user.getRole());
 
-        return new TokenResponse(token,"Bearer");
+        // 4. 유저 정보 DTO 생성 (러닝기록 포함해서 정리)
+        UserInfo userInfo = UserInfo.from(user);
+
+        // 5. 통합 응답
+        return LoginResponse.builder()
+                .accessToken(token)
+                .tokenType("Bearer")
+                .user(userInfo)
+                .build();
     }
 
     /**
