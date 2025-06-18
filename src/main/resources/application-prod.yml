@@ -50,3 +50,13 @@ logging:
 server:
   address: 0.0.0.0
   port: 8080
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    s3:
+      bucket: u
