@@ -1,10 +1,6 @@
 spring:
   datasource:
-<<<<<<< HEAD
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-=======
-    url: ${DB_URL}
->>>>>>> fd4a25d (chore : cicd 리베이스)
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -41,13 +37,16 @@ kakao:
 
 logging:
   level:
-    root: info
-<<<<<<< HEAD
-    com.runningRank: debug
+    root: INFO # 전체 애플리케이션의 기본 로깅 레벨 (DEBUG 권장)
+    org:
+      springframework:
+        web:
+          cors: TRACE # Spring Security의 CORS 필터 동작을 상세히 보기 위함
+        security: TRACE # Spring Security의 전반적인 필터 체인 및 인증/인가 동작을 상세히 보기 위함
+    com:
+      runningRank:
+        runningRank: TRACE # 여러분의 애플리케이션 특정 패키지 로깅 (Service, Controller 등에서 어떤 일이 일어나는지 확인)
 
 server:
   address: 0.0.0.0
   port: 8080
-=======
-    com.runningRank: debug
->>>>>>> fd4a25d (chore : cicd 리베이스)

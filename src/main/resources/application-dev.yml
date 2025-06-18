@@ -41,3 +41,13 @@ logging:
 kakao:
   client-id: 30fd97fda368d489fb9ab92080ab4b3d
   redirect-uri: http://localhost:3000/oauth/callback/kakao
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    s3:
+      bucket: univ-marathon-rank
