@@ -21,6 +21,17 @@ public class AuthController {
     private final AuthService authService;
     private final KakaoOAuthService kakaoOAuthService;
 
+    @GetMapping("/check-email")
+    public ResponseEntity<ApiResponse<Boolean>> checkEmailDuplicate(
+            @RequestParam("email") String email
+    ) {
+        return ResponseEntity.ok(ApiResponse.<Boolean>builder()
+                .status(HttpStatus.OK.value())
+                .message("이메일 중복 여부 확인 성공")
+                .data(authService.checkEmailDuplicate(email))
+                .build());
+    }
+
     /**
      * 회원가입 API
      * @param request

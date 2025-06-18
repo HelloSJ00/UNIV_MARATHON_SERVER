@@ -26,12 +26,16 @@ public class AuthService {
     private final UniversityRepository universityRepository;
     private final JwtProvider jwtProvider;
 
+    // 이메일 중복확인
+    public boolean checkEmailDuplicate(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     public UserResponse signup(SignUpRequest request) {
         // 이메일 중복 체크
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
-
         // 전공명으로만 조회시 중복 발생
         // 전공명,학교명 으로 Major 엔티티 조회
         Major major = majorRepository.findByNameAndUniversityName(request.getMajor(),request.getUniversity())
