@@ -2,6 +2,7 @@ package com.runningRank.runningRank.auth.controller;
 
 
 import com.runningRank.runningRank.auth.dto.*;
+import com.runningRank.runningRank.auth.model.CustomUserDetails;
 import com.runningRank.runningRank.auth.service.AuthService;
 import com.runningRank.runningRank.auth.service.KakaoOAuthService;
 import com.runningRank.runningRank.global.dto.ApiResponse;
@@ -10,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -111,34 +114,95 @@ public class AuthController {
 
     /**
      * 사용자 정보를 수정하는 API 엔드포인트.
-     * PUT /api/users/{userId}
+     * PUT /api/users/update-user-info
      *
-     * @param userId  수정 대상 사용자의 ID
      * @param request UserUpdateRequest DTO (수정할 사용자 정보)
-     * @return 수정 성공 여부를 나타내는 ResponseEntity
+     * @return 수정 성공 여부를 나타내는 ResponseEntity<ApiResponse<Boolean>>
      */
-    @PutMapping("/{userId}") // PUT 메서드, 특정 사용자 ID를 경로 변수로 받음
-    public ResponseEntity<Void> updateUserInfo(@PathVariable("userId") Long userId,
-                                               @RequestBody UserUpdateRequest request) {
+    @PutMapping("/update-user-info")
+    public ResponseEntity<ApiResponse<Boolean>> updateUserInfo(@RequestBody UserUpdateRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED) // HTTP 상태 코드 401
+                    .body(ApiResponse.<Boolean>builder() // Boolean 타입 명시
+                            .status(HttpStatus.UNAUTHORIZED.value()) // ApiResponse의 status 필드에 HTTP 상태 코드 값 설정
+                            .message("인증되지 않은 사용자입니다.")
+                            .build());
+        }
+
+        Object principal = authentication.getPrincipal();
+        Long userId;
+
+        if (principal instanceof CustomUserDetails) {
+            CustomUserDetails userDetails = (CustomUserDetails) principal;
+            userId = userDetails.getId(); // CustomUserDetails에 getId() 메서드가 있다고 가정
+        } else if (principal instanceof String) {
+            try {
+                userId = Long.parseLong((String) principal);
+            } catch (NumberFormatException e) {
+                System.err.println("인증된 Principal(String)이 유효한 ID 형식이 아닙니다: " + principal);
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED) // HTTP 상태 코드 401
+                        .body(ApiResponse.<Boolean>builder() // Boolean 타입 명시
+                                .status(HttpStatus.UNAUTHORIZED.value())
+                                .message("사용자 ID를 파싱할 수 없습니다.")
+                                .build());
+            }
+        } else {
+            System.err.println("인증된 Principal 타입이 CustomUserDetails 또는 String이 아닙니다: " + principal.getClass().getName());
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED) // HTTP 상태 코드 401
+                    .body(ApiResponse.<Boolean>builder() // Boolean 타입 명시
+                            .status(HttpStatus.UNAUTHORIZED.value())
+                            .message("알 수 없는 사용자 인증 정보입니다.")
+                            .build());
+        }
+
+        if (userId == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED) // HTTP 상태 코드 401
+                    .body(ApiResponse.<Boolean>builder() // Boolean 타입 명시
+                            .status(HttpStatus.UNAUTHORIZED.value())
+                            .message("인증된 사용자 ID를 찾을 수 없습니다.")
+                            .build());
+        }
+
         try {
-            // UserService를 통해 사용자 정보 수정 로직 호출
             boolean isUpdated = authService.updateUserInfo(request, userId);
 
             if (isUpdated) {
-                return ResponseEntity.noContent().build(); // 204 No Content: 성공했지만 응답 본문은 없음
+                return ResponseEntity
+                        .ok(ApiResponse.<Boolean>builder() // HTTP 상태 코드 200
+                                .status(HttpStatus.OK.value())
+                                .message("사용자 정보가 성공적으로 업데이트되었습니다.")
+                                .data(true) // 성공 시 데이터로 true를 포함
+                                .build());
             } else {
-                // 이론적으로 updateUserInfo는 항상 true를 반환하지만,
-                // 만약을 위한 폴백 (예: 특정 조건 미충족 시 false 반환하도록 서비스 변경 시)
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // 400 Bad Request
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST) // HTTP 상태 코드 400
+                        .body(ApiResponse.<Boolean>builder() // Boolean 타입 명시
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .message("사용자 정보 업데이트에 실패했습니다.")
+                                .build());
             }
         } catch (EntityNotFoundException e) {
-            // 사용자를 찾을 수 없거나, 대학교/전공을 찾을 수 없을 때 (UserService에서 throw 함)
             System.err.println("사용자 정보 수정 실패: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND) // HTTP 상태 코드 404
+                    .body(ApiResponse.<Boolean>builder() // Boolean 타입 명시
+                            .status(HttpStatus.NOT_FOUND.value())
+                            .message(e.getMessage()) // 예외 메시지 포함
+                            .build());
         } catch (RuntimeException e) {
-            // 그 외 서비스 로직에서 발생할 수 있는 일반적인 런타임 예외 처리
             System.err.println("사용자 정보 수정 중 예상치 못한 오류 발생: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR) // HTTP 상태 코드 500
+                    .body(ApiResponse.<Boolean>builder() // Boolean 타입 명시
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .message("서버 내부 오류가 발생했습니다.")
+                            .build());
         }
     }
-}
+    }
