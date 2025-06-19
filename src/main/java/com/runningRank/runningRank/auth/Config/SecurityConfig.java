@@ -53,7 +53,10 @@ public class SecurityConfig {
                                 "/api/test/badge",
                                 "/api/user/upload-url"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                // /api/admin 경로는 'ADMIN' 역할을 가진 사용자만 접근 가능하도록 추가
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class);
@@ -69,7 +72,8 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000", // 로컬 개발 환경
                 "https://univ-marathon-rank-client-isskon42k-hellosj00s-projects.vercel.app" ,// Vercel 배포 도메인,
-                "https://univ-marathon-rank-client.vercel.app/"
+                "https://univ-marathon-rank-client.vercel.app/",
+                "https://www.univmarathon.com/"
                 // 다른 운영 환경 도메인이 있다면 여기에 추가
         ));
         // --- 수정 끝 ---
