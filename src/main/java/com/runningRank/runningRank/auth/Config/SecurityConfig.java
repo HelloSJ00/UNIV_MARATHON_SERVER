@@ -50,7 +50,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/api/test/badge"
+                                "/api/test/badge",
+                                "/api/user/upload-url"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
