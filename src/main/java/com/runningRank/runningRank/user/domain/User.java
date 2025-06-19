@@ -135,6 +135,10 @@ public class User {
      * DTO의 String 값을 엔티티로 변환하는 책임은 서비스 레이어에 있습니다.
      */
     public void updateInfo(UserUpdateRequest request, University newUniversity, Major newMajor) {
+
+        if(request.getProfileImageUrl() != null){
+            this.profileImageUrl = request.getProfileImageUrl();
+        }
         if (request.getName() != null) {
             this.name = request.getName();
         }

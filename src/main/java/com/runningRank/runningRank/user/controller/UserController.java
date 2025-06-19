@@ -1,11 +1,14 @@
 package com.runningRank.runningRank.user.controller;
 
+import com.runningRank.runningRank.auth.dto.UserInfo;
+import com.runningRank.runningRank.auth.dto.UserUpdateRequest;
 import com.runningRank.runningRank.auth.model.CustomUserDetails;
 import com.runningRank.runningRank.global.dto.ApiResponse;
 import com.runningRank.runningRank.user.dto.PresignedUrlRequest;
 import com.runningRank.runningRank.user.dto.PresignedUrlResponse;
 import com.runningRank.runningRank.user.dto.UserVerification;
 import com.runningRank.runningRank.user.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,12 +27,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return ResponseEntity.ok("Hello " + auth.getName());
-    }
-
     @GetMapping("/verifications")
     public ResponseEntity<ApiResponse<List<UserVerification>>> getUserVerifications() {
         // 🔐 현재 로그인한 유저의 ID를 SecurityContext에서 가져옴
@@ -41,6 +38,26 @@ public class UserController {
                 .status(HttpStatus.OK.value())
                 .message("유저 인증 기록 조회 성공")
                 .data(userService.getUserVerifications(userId))
+                .build());
+    }
+    /**
+     * 사용자 정보를 수정하는 API 엔드포인트.
+     * PUT /api/users/update-user-info
+     *
+     * @param request UserUpdateRequest DTO (수정할 사용자 정보)
+     * @return 수정 성공 여부를 나타내는 ResponseEntity<ApiResponse<Boolean>>
+     */
+    @PutMapping("/update-user-info")
+    public ResponseEntity<ApiResponse<UserInfo>> updateUserInfo(@RequestBody UserUpdateRequest request) {
+        // 🔐 현재 로그인한 유저의 ID를 SecurityContext에서 가져옴
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        return ResponseEntity.ok(ApiResponse.<UserInfo>builder()
+                .status(HttpStatus.OK.value())
+                .message("유저 정보 업데이트 완료")
+                .data(userService.updateUserInfo(request,userId))
                 .build());
     }
 

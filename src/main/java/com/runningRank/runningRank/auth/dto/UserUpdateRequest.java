@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Getter
 public class UserUpdateRequest {
+    private String profileImageUrl;
     private String name;
     private LocalDate birthDate;
     private String gender;
