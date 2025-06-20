@@ -14,4 +14,5 @@ public class SimpleUserDto {
     private String universityName;
     private String studentNumber;
     private String profileImageUrl;
+    private String majorName;
 }

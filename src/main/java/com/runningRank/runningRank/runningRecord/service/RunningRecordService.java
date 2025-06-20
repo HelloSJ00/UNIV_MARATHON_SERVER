@@ -51,7 +51,8 @@ public class RunningRecordService {
                                 String.valueOf(record.getUser().getGender()),
                                 record.getUser().getUniversity().getUniversityName(),
                                 record.getUser().getStudentNumber(),
-                                record.getUser().getProfileImageUrl()
+                                record.getUser().getProfileImageUrl(),
+                                record.getUser().getMajor().getName()
                         ))
                         .build())
                 .toList();
@@ -86,7 +87,8 @@ public class RunningRecordService {
                                 String.valueOf(record.getUser().getGender()), // ✅ 수정된 부분
                                 record.getUser().getUniversity().getUniversityName(),
                                 record.getUser().getStudentNumber(),
-                                record.getUser().getProfileImageUrl()
+                                record.getUser().getProfileImageUrl(),
+                                record.getUser().getMajor().getName()
                         ))
                         .build()
                 )
