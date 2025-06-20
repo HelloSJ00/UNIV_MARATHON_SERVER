@@ -60,6 +60,7 @@ public class KakaoOAuthService {
                 .birthDate(request.getBirthDate())
                 .gender(Gender.valueOf(request.getGender().toUpperCase()))
                 .university(university)
+                .studentNumber(request.getStudentId())
                 .major(major)
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)
@@ -107,6 +108,7 @@ public class KakaoOAuthService {
                 .name(request.getName())
                 .oauthProvider("kakao")
                 .oauthId(request.getOauthId())
+                .studentNumber(request.getStudentId())
                 .birthDate(request.getBirthDate())
                 .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
                 .university(university) // 동일하게 처리 가능
@@ -123,6 +125,7 @@ public class KakaoOAuthService {
                 .name(savedUser.getName())
                 .birthDate(request.getBirthDate())
                 .gender(savedUser.getGender())
+                .studentNumber(savedUser.getStudentNumber())
                 .university(savedUser.getUniversity())
                 .studentNumber(savedUser.getStudentNumber())
                 .major(savedUser.getMajor().getName())

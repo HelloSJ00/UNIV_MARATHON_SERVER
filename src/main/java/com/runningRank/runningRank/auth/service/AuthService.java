@@ -55,6 +55,7 @@ public class AuthService {
                 .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
                 .university(university) // 동일하게 처리 가능
                 .major(major)  // 변경된 부분
+                .studentNumber(request.getStudentId())
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)
                 .build();
