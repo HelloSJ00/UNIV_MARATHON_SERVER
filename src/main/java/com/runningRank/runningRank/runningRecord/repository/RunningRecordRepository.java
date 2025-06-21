@@ -2,6 +2,7 @@ package com.runningRank.runningRank.runningRecord.repository;
 
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
+import com.runningRank.runningRank.runningRecord.dto.FullRankInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,123 +18,73 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
      * @param runningType
      * @return
      */
-    @Query(
-            value = "SELECT rr.* " +
-                    "FROM running_record rr " +
-                    "JOIN user u ON rr.user_id = u.id " +
-                    "JOIN university uni ON u.university_id = uni.id " +
-                    "WHERE uni.university_name = :universityName " +
-                    "AND rr.running_type = :runningType " +
-                    "ORDER BY rr.record_time_in_seconds ASC " +
-                    "LIMIT 100",
-            nativeQuery = true
-    )
-    List<RunningRecord> findRankingBySchoolAndType(
-            @Param("universityName") String universityName,
-            @Param("runningType") String runningType
+    @Query(value =/* language=SQL */
+                """
+                SELECT rr.* 
+                FROM running_record rr 
+                JOIN user u ON rr.user_id = u.id 
+                JOIN university uni ON u.university_id = uni.id 
+                WHERE rr.running_type = :runningType 
+                  AND (:universityName IS NULL OR uni.university_name = :universityName)
+                  AND (:gender = 'ALL' OR u.gender = :gender)
+                ORDER BY rr.record_time_in_seconds ASC 
+                LIMIT 100
+                """, nativeQuery = true)
+    List<RunningRecord> getTop100Rankings(
+            @Param("runningType") String runningType,
+            @Param("universityName") String universityName, // null이면 전체
+            @Param("gender") String gender                  // ALL, MALE, FEMALE
     );
 
     /**
-     * 학교별 종목별 러닝 기록 랭킹 조회 남자
-     * @param universityName
-     * @param runningType
+     * 유저가 몇등인지 반환하는 로직
      * @return
      */
-    @Query(
-            value = "SELECT rr.* " +
-                    "FROM running_record rr " +
-                    "JOIN user u ON rr.user_id = u.id " +
-                    "JOIN university uni ON u.university_id = uni.id " +
-                    "WHERE uni.university_name = :universityName " +
-                    "AND rr.running_type = :runningType " +
-                    "AND u.gender = 'MALE' " +  // ✅ 문자열 상수는 작은 따옴표로
-                    "ORDER BY rr.record_time_in_seconds ASC " +
-                    "LIMIT 100",
-            nativeQuery = true
-    )
-    List<RunningRecord> findRankingBySchoolAndTypeAndMale(
-            @Param("universityName") String universityName,
-            @Param("runningType") String runningType
+    @Query(value = /* language=SQL */
+    """
+    SELECT ranked_records.*
+    FROM (
+        SELECT
+            ranked.user_id AS userId,
+            ranked.user_name AS userName,
+            ranked.user_gender AS userGender,
+            ranked.university_name AS universityName,
+            ranked.running_type AS runningType,
+            ranked.marathon_name AS marathonName,
+            ranked.record_time_in_seconds AS recordTimeInSeconds,
+            ranked.created_at AS createdAt,
+            RANK() OVER (ORDER BY ranked.record_time_in_seconds ASC, ranked.user_id ASC) AS ranking,
+            COUNT(*) OVER () AS totalCount
+        FROM (
+            SELECT 
+                rr.running_type,
+                rr.marathon_name,
+                rr.record_time_in_seconds,
+                rr.created_at,
+                u.id AS user_id,
+                u.name AS user_name,
+                u.gender AS user_gender,
+                uni.university_name
+            FROM running_record rr
+            JOIN user u ON rr.user_id = u.id
+            JOIN university uni ON u.university_id = uni.id
+            WHERE rr.running_type = :runningType
+              AND (:gender = 'ALL' OR u.gender = :gender)
+              AND (:universityName IS NULL OR uni.university_name = :universityName)
+        ) ranked
+    ) AS ranked_records
+    WHERE userId = :userId
+    """, nativeQuery = true)
+    Optional<FullRankInfo> findFullUserRankingInfo(
+            @Param("userId") Long userId,
+            @Param("runningType") String runningType,
+            @Param("gender") String gender,
+            @Param("universityName") String universityName
     );
 
-    /**
-     * 학교별 종목별 러닝 기록 랭킹 조회 여자
-     * @param universityName
-     * @param runningType
-     * @return
-     */
-    @Query(
-            value = "SELECT rr.* " +
-                    "FROM running_record rr " +
-                    "JOIN user u ON rr.user_id = u.id " +
-                    "JOIN university uni ON u.university_id = uni.id " +
-                    "WHERE uni.university_name = :universityName " +
-                    "AND rr.running_type = :runningType " +
-                    "AND u.gender = 'FEMALE' " +  // ✅ 문자열 상수는 작은 따옴표로
-                    "ORDER BY rr.record_time_in_seconds ASC " +
-                    "LIMIT 100",
-            nativeQuery = true
-    )
-    List<RunningRecord> findRankingBySchoolAndTypeAndFemale(
-            @Param("universityName") String universityName,
-            @Param("runningType") String runningType
-    );
 
-    /**
-     * 종목별 통합 랭킹 순위
-     * @param runningType
-     * @return
-     */
-    @Query(
-            value = "SELECT rr.* " +
-                    "FROM running_record rr " +
-                    "JOIN user u ON rr.user_id = u.id " +
-                    "WHERE rr.running_type = :runningType " +
-                    "ORDER BY rr.record_time_in_seconds ASC " +
-                    "LIMIT 100",
-            nativeQuery = true
-    )
-    List<RunningRecord> findTop100ByTypeOrderByRecordTimeAsc(
-            @Param("runningType") String runningType
-    );
 
-    /**
-     * 종목별 통합 랭킹 순위 남자
-     * @param runningType
-     * @return
-     */
-    @Query(
-            value = "SELECT rr.* " +
-                    "FROM running_record rr " +
-                    "JOIN user u ON rr.user_id = u.id " +
-                    "WHERE rr.running_type = :runningType " +
-                    "AND u.gender = 'MALE' " +  // ✅ 문자열 상수는 작은 따옴표로
-                    "ORDER BY rr.record_time_in_seconds ASC " +
-                    "LIMIT 100",
-            nativeQuery = true
-    )
-    List<RunningRecord> findTop100ByTypeOrderByRecordTimeAscAndMale(
-            @Param("runningType") String runningType
-    );
 
-    /**
-     * 종목별 통합 랭킹 순위 여자
-     * @param runningType
-     * @return
-     */
-    @Query(
-            value = "SELECT rr.* " +
-                    "FROM running_record rr " +
-                    "JOIN user u ON rr.user_id = u.id " +
-                    "WHERE rr.running_type = :runningType " +
-                    "AND u.gender = 'FEMALE' " +  // ✅ 문자열 상수는 작은 따옴표로
-                    "ORDER BY rr.record_time_in_seconds ASC " +
-                    "LIMIT 100",
-            nativeQuery = true
-    )
-    List<RunningRecord> findTop100ByTypeOrderByRecordTimeAscAndFemale(
-            @Param("runningType") String runningType
-    );
 
     @Query(
             value = "SELECT university_name, running_type, user_id, record_time_in_seconds, rnk " +

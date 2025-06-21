@@ -1,11 +1,12 @@
 package com.runningRank.runningRank.runningRecord.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.runningRank.runningRank.user.domain.User;
+import lombok.*;
 
 @AllArgsConstructor
 @Getter
+@Builder
+@NoArgsConstructor
 public class SimpleUserDto {
     private Long id;
     private String name;
@@ -15,4 +16,18 @@ public class SimpleUserDto {
     private String studentNumber;
     private String profileImageUrl;
     private String majorName;
+
+    public static SimpleUserDto from(User user) {
+        return SimpleUserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .gender(String.valueOf(user.getGender()))
+                .universityName(user.getUniversity().getUniversityName())
+                .studentNumber(user.getStudentNumber())
+                .profileImageUrl(user.getProfileImageUrl())
+                .majorName(user.getMajor().getName())
+                .build();
+    }
+
 }

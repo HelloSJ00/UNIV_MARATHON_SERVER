@@ -16,4 +16,5 @@ public class OverallRunningRankDto {
     private int recordTimeInSeconds;
     private LocalDateTime recordDate;
     private SimpleUserDto user;
+    private int totalCount;
 }
