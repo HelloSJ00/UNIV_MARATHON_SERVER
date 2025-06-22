@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.runningRecord.dto;
 
+import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,4 +13,5 @@ public class MyRankInfo {
     private long ranking;             // int -> long 변경 (RANK() 결과는 BIGINT일 수 있음)
     private long totalCount;          // int -> long 변경 (COUNT() 결과는 BIGINT일 수 있음)
     private String gender;
+    private String type; // rr.running_type;
 }

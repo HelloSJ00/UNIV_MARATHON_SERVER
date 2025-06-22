@@ -58,19 +58,22 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
                 ranked_records.record_time_in_seconds AS recordTimeInSeconds,
                 ranked_records.ranking,
                 ranked_records.totalCount,
-                ranked_records.gender
+                ranked_records.gender,
+                ranked_records.running_type
             FROM (
                 SELECT
                     ranked.record_time_in_seconds,
                     ranked.user_id AS userId,
                     ranked.gender,
+                    ranked.running_type,
                     RANK() OVER (ORDER BY ranked.record_time_in_seconds ASC, ranked.user_id ASC) AS ranking, /* 'rank' 대신 'computed_rank' 사용 */
                     COUNT(*) OVER () AS totalCount
                 FROM (
                     SELECT
                         rr.record_time_in_seconds,
                         u.id AS user_id,
-                        u.gender
+                        u.gender,
+                        rr.running_type
                     FROM running_record rr
                     JOIN user u ON rr.user_id = u.id
                     JOIN university uni ON u.university_id = uni.id
