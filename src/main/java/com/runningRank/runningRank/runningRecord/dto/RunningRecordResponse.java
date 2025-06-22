@@ -11,5 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 public class RunningRecordResponse {
     private List<OverallRunningRankDto> rankings;
-    private OverallRunningRankDto myrecord;
+    private MyRankInfo myrecord;
 }
