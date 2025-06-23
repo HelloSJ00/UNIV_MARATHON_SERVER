@@ -69,6 +69,8 @@ public class User {
     // 4
     @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
+    private Boolean isNameVisible = true;
 
     @Column(nullable = false)
     private LocalDate birthDate;  // ex) 2000-05-14
@@ -87,11 +89,14 @@ public class User {
 
     // 8
     private String studentNumber;
-
+    @Column(nullable = false)
+    private Boolean isStudentNumberVisible = true;
     // 9
     @ManyToOne
     @JoinColumn(name = "major_id")
     private Major major;
+    @Column(nullable = false)
+    private Boolean isMajorVisible = true;
 
     // 10
     private String profileImageUrl;
