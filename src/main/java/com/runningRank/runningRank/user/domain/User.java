@@ -150,6 +150,7 @@ public class User {
         if (request.getName() != null) {
             this.name = request.getName();
         }
+
         if (request.getBirthDate() != null) {
             this.birthDate = request.getBirthDate();
         }
@@ -186,5 +187,19 @@ public class User {
             this.isUniversityVerified = false;
         }
         // request.isChangeUniversity()가 false면 isUniversityVerified는 변경하지 않음
+
+
+        // 개인정보 노출 정보
+        if (!request.isNameVisible()){
+            this.isNameVisible = false;
+        }
+
+        if (!request.isStudentNumberVisible()){
+            this.isStudentNumberVisible = false;
+        }
+
+        if(!request.isMajorVisible()){
+            this.isMajorVisible = false;
+        }
     }
 }
