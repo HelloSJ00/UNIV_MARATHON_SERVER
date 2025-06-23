@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +25,10 @@ public class EmailVerificationController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<Boolean>> requestUniversityEmailVerification(
-            @RequestParam("email") String email
+            @RequestParam("email") String email,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         // 🔐 현재 로그인한 유저의 ID를 SecurityContext에서 가져옴
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
 
         // 이메일 도메인 검증 + 인증 메일 전송
@@ -62,12 +62,10 @@ public class EmailVerificationController {
     @GetMapping("/verifyCode")
     public ResponseEntity<ApiResponse<Boolean>> requestVerifyCode(
             @RequestParam("univEmail") String univEmail,
-            @RequestParam("verifyCode") String verifyCode){
+            @RequestParam("verifyCode") String verifyCode,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
         // 🔐 현재 로그인한 유저의 ID를 SecurityContext에서 가져옴
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
-
         return ResponseEntity.ok(
                 ApiResponse.<Boolean>builder()
                         .status(HttpStatus.OK.value()) // 200

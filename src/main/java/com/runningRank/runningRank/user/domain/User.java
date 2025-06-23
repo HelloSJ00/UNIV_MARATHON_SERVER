@@ -134,6 +134,9 @@ public class User {
         return Period.between(this.birthDate, LocalDate.now()).getYears();
     }
 
+    public void changePassword(String newPassword){
+        this.password = newPassword;
+    }
     /**
      * 사용자 정보를 업데이트하는 비즈니스 메서드
      * 이 메서드는 University와 Major 엔티티 객체를 직접 받도록 변경합니다.
