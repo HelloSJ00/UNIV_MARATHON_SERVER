@@ -73,7 +73,8 @@ public class SecurityConfig {
                 "http://localhost:3000", // 로컬 개발 환경
                 "https://univ-marathon-rank-client-isskon42k-hellosj00s-projects.vercel.app" ,// Vercel 배포 도메인,
                 "https://univ-marathon-rank-client.vercel.app/",
-                "https://www.univmarathon.com/"
+                "https://www.univmarathon.com/",
+                "https://univmarathon.com/"
                 // 다른 운영 환경 도메인이 있다면 여기에 추가
         ));
         // --- 수정 끝 ---
