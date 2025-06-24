@@ -16,7 +16,7 @@ public class BadgeController {
 
     @GetMapping
     public ResponseEntity<String> test(){
-        badgeService.top3bySchoolAndByRunningType();
+//        badgeService.top3bySchoolAndByRunningType();
         return ResponseEntity.ok("ok ");
     }
 }

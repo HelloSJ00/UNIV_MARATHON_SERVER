@@ -1,16 +1,15 @@
 package com.runningRank.runningRank.user.domain;
 
+import com.runningRank.runningRank.auth.dto.SignUpRequest;
 import com.runningRank.runningRank.auth.dto.UserUpdateRequest;
 import com.runningRank.runningRank.major.domain.Major;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.university.domain.University;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +24,6 @@ import java.util.List;
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 public class User {
-
     /**
      *  1. PK
      *  2. 계정
@@ -203,6 +201,10 @@ public class User {
 
         if(!request.isMajorVisible()){
             this.isMajorVisible = false;
+        }
+
+        if(request.getGraduationStatus()!= null){
+            this.graduationStatus = GraduationStatus.valueOf(request.getGraduationStatus());
         }
     }
 }

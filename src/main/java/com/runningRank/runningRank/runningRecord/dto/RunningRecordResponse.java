@@ -10,6 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RunningRecordResponse {
-    private List<OverallRunningRankDto> rankings;
+    private List<RunningRankDto> rankings;
     private MyRankInfo myrecord;
 }
