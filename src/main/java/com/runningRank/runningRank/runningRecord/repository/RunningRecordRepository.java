@@ -3,7 +3,7 @@ package com.runningRank.runningRank.runningRecord.repository;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.runningRecord.dto.MyRankInfo;
-import com.runningRank.runningRank.runningRecord.dto.OverallRunningRankDto;
+import com.runningRank.runningRank.runningRecord.dto.RunningRankDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,7 +43,7 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
             ORDER BY rr.record_time_in_seconds ASC
             LIMIT 100
             """, nativeQuery = true)
-    List<OverallRunningRankDto> getTop100Rankings(
+    List<RunningRankDto> getTop100Rankings(
             @Param("runningType") String runningType, // 또는 RunningType runningType
             @Param("universityName") String universityName,
             @Param("gender") String gender
@@ -53,7 +53,8 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
      * 유저가 몇등인지 반환하는 로직
      * @return
      */
-    @Query(value = """
+    @Query(value =
+            """
             SELECT
                 ranked_records.record_time_in_seconds AS recordTimeInSeconds,
                 ranked_records.ranking,

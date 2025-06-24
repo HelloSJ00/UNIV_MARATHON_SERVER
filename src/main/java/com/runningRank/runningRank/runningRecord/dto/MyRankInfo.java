@@ -14,5 +14,5 @@ public class MyRankInfo {
     private long totalCount;          // int -> long 변경 (COUNT() 결과는 BIGINT일 수 있음)
     private String gender;
     private String type; // rr.running_type;
-//    private String graduationStatus;
+    private String graduationStatus;
 }

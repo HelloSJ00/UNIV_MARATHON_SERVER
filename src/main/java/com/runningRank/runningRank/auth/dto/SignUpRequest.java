@@ -35,4 +35,9 @@ public class SignUpRequest {
 
     // 9.프로필 이미지
     private String profileImage;  // 프로필 이미지 URL (선택)
+
+    private boolean isNameVisible;
+    private boolean isStudentNumberVisible;
+    private boolean isMajorVisible;
+    private String graduationStatus;
 }

@@ -27,7 +27,10 @@ public class UserInfo {
     private LocalDateTime createdAt;
     private String universityEmail;
     private boolean isUniversityVerified;
-//    private String graduationStatus;
+    private boolean isNameVisible;
+    private boolean isStudentNumberVisible;
+    private boolean isMajorVisible;
+    private String graduationStatus;
 
     private Map<String, RunningRecordDto> runningRecords;
 
@@ -48,7 +51,7 @@ public class UserInfo {
                 .name(user.getName())
                 .birthDate(user.getBirthDate())
                 .age(user.getAge())
-                .gender(java.lang.String.valueOf(user.getGender()))
+                .gender(String.valueOf(user.getGender()))
                 .universityName(user.getUniversity().getUniversityName()) // University 엔티티에 getName()이 있다고 가정
                 .majorName(user.getMajor().getName())           // Major 엔티티에 getName()이 있다고 가정
                 .profileImageUrl(user.getProfileImageUrl())
@@ -56,6 +59,10 @@ public class UserInfo {
                 .createdAt(user.getCreatedAt())
                 .universityEmail(user.getUniversityEmail())
                 .isUniversityVerified(user.isUniversityVerified())
+                .isNameVisible(user.getIsNameVisible())
+                .isStudentNumberVisible(user.getIsStudentNumberVisible())
+                .isMajorVisible(user.getIsMajorVisible())
+                .graduationStatus(String.valueOf(user.getGraduationStatus()))
                 .runningRecords(runningMap)
                 .build();
     }

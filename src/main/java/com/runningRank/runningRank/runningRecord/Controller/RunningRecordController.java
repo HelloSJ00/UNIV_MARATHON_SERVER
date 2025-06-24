@@ -3,7 +3,6 @@ package com.runningRank.runningRank.runningRecord.Controller;
 import com.runningRank.runningRank.auth.model.CustomUserDetails;
 import com.runningRank.runningRank.global.dto.ApiResponse;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
-import com.runningRank.runningRank.runningRecord.dto.OverallRunningRankDto;
 import com.runningRank.runningRank.runningRecord.dto.RunningRecordResponse;
 import com.runningRank.runningRank.runningRecord.service.RunningRecordService;
 import lombok.RequiredArgsConstructor;

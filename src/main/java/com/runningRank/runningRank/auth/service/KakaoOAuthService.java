@@ -7,6 +7,7 @@ import com.runningRank.runningRank.major.repository.MajorRepository;
 import com.runningRank.runningRank.university.domain.University;
 import com.runningRank.runningRank.university.repository.UniversityRepository;
 import com.runningRank.runningRank.user.domain.Gender;
+import com.runningRank.runningRank.user.domain.GraduationStatus;
 import com.runningRank.runningRank.user.domain.Role;
 import com.runningRank.runningRank.user.domain.User;
 import com.runningRank.runningRank.user.repository.UserRepository;
@@ -106,15 +107,17 @@ public class KakaoOAuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword())) // 비밀번호 암호화
                 .name(request.getName())
-                .oauthProvider("kakao")
-                .oauthId(request.getOauthId())
-                .studentNumber(request.getStudentId())
                 .birthDate(request.getBirthDate())
                 .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
                 .university(university) // 동일하게 처리 가능
-                // .major(request.getMajor())
+                .major(major)  // 변경된 부분
+                .studentNumber(request.getStudentId())
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)
+                .isNameVisible(request.isNameVisible())
+                .isStudentNumberVisible(request.isStudentNumberVisible())
+                .isMajorVisible(request.isMajorVisible())
+                .graduationStatus(GraduationStatus.valueOf(request.getGraduationStatus()))
                 .build();
 
         // 저장
@@ -125,12 +128,15 @@ public class KakaoOAuthService {
                 .name(savedUser.getName())
                 .birthDate(request.getBirthDate())
                 .gender(savedUser.getGender())
-                .studentNumber(savedUser.getStudentNumber())
                 .university(savedUser.getUniversity())
                 .studentNumber(savedUser.getStudentNumber())
                 .major(savedUser.getMajor().getName())
                 .profileImageUrl(savedUser.getProfileImageUrl())
                 .role(savedUser.getRole())
+                .isNameVisible(savedUser.getIsNameVisible())
+                .isStudentNumberVisible(savedUser.getIsStudentNumberVisible())
+                .isMajorVisible(savedUser.getIsMajorVisible())
+                .graduationStatus(String.valueOf(savedUser.getGraduationStatus()))
                 .build();
     }
 

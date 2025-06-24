@@ -8,6 +8,7 @@ import com.runningRank.runningRank.major.repository.MajorRepository;
 import com.runningRank.runningRank.university.domain.University;
 import com.runningRank.runningRank.university.repository.UniversityRepository;
 import com.runningRank.runningRank.user.domain.Gender;
+import com.runningRank.runningRank.user.domain.GraduationStatus;
 import com.runningRank.runningRank.user.domain.Role;
 import com.runningRank.runningRank.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -58,8 +59,11 @@ public class AuthService {
                 .studentNumber(request.getStudentId())
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)
+                .isNameVisible(request.isNameVisible())
+                .isStudentNumberVisible(request.isStudentNumberVisible())
+                .isMajorVisible(request.isMajorVisible())
+                .graduationStatus(GraduationStatus.valueOf(request.getGraduationStatus()))
                 .build();
-
         // 저장
         User savedUser = userRepository.save(user);
         return UserResponse.builder()
@@ -73,6 +77,10 @@ public class AuthService {
                 .major(savedUser.getMajor().getName())
                 .profileImageUrl(savedUser.getProfileImageUrl())
                 .role(savedUser.getRole())
+                .isNameVisible(savedUser.getIsNameVisible())
+                .isStudentNumberVisible(savedUser.getIsStudentNumberVisible())
+                .isMajorVisible(savedUser.getIsMajorVisible())
+                .graduationStatus(String.valueOf(savedUser.getGraduationStatus()))
                 .build();
     }
 
