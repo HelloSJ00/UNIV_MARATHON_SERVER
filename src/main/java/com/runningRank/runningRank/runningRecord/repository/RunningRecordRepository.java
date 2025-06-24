@@ -32,7 +32,11 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
                 uni.university_name,
                 u.student_number, -- DB 컬럼명 확인 후 수정
                 u.profile_image_url AS profile_image_url, -- DTO의 profileImageUrl에 매핑되도록 별칭 사용
-                m.name AS major_name -- DTO의 majorName에 매핑되도록 별칭 사용
+                m.name AS major_name, -- DTO의 majorName에 매핑되도록 별칭 사용
+                u.is_name_visible,
+                u.is_student_number_visible,
+                u.is_major_visible,
+                u.graduation_status
             FROM running_record rr
             JOIN user u ON rr.user_id = u.id
             JOIN university uni ON u.university_id = uni.id
@@ -60,13 +64,15 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
                 ranked_records.ranking,
                 ranked_records.totalCount,
                 ranked_records.gender,
-                ranked_records.running_type
+                ranked_records.running_type,
+                ranked_records.graduation_status
             FROM (
                 SELECT
                     ranked.record_time_in_seconds,
                     ranked.user_id AS userId,
                     ranked.gender,
                     ranked.running_type,
+                    ranked.graduation_status,
                     RANK() OVER (ORDER BY ranked.record_time_in_seconds ASC, ranked.user_id ASC) AS ranking, /* 'rank' 대신 'computed_rank' 사용 */
                     COUNT(*) OVER () AS totalCount
                 FROM (
@@ -74,7 +80,8 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
                         rr.record_time_in_seconds,
                         u.id AS user_id,
                         u.gender,
-                        rr.running_type
+                        rr.running_type,
+                        u.graduation_status
                     FROM running_record rr
                     JOIN user u ON rr.user_id = u.id
                     JOIN university uni ON u.university_id = uni.id
@@ -92,27 +99,23 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
             @Param("universityName") String universityName
     );
 
-
-
-
-
-    @Query(
-            value = "SELECT university_name, running_type, user_id, record_time_in_seconds, rnk " +
-                    "FROM ( " +
-                    "  SELECT r.*, uni.university_name, " +
-                    "         RANK() OVER ( " +
-                    "           PARTITION BY uni.university_name, r.running_type " +
-                    "           ORDER BY r.record_time_in_seconds ASC " +
-                    "         ) AS rnk " +
-                    "  FROM running_record r " +
-                    "  JOIN user u ON r.user_id = u.id " +
-                    "  JOIN university uni ON u.university_id = uni.id " +
-                    ") ranked " +
-                    "WHERE ranked.rnk <= 3",
-            nativeQuery = true
-    )
-    List<Object[]> findTop3PerSchoolAndTypeAll();
-
-    void deleteByUserIdAndRunningType(Long userId, RunningType runningType);
+//    @Query(
+//            value = "SELECT university_name, running_type, user_id, record_time_in_seconds, rnk " +
+//                    "FROM ( " +
+//                    "  SELECT r.*, uni.university_name, " +
+//                    "         RANK() OVER ( " +
+//                    "           PARTITION BY uni.university_name, r.running_type " +
+//                    "           ORDER BY r.record_time_in_seconds ASC " +
+//                    "         ) AS rnk " +
+//                    "  FROM running_record r " +
+//                    "  JOIN user u ON r.user_id = u.id " +
+//                    "  JOIN university uni ON u.university_id = uni.id " +
+//                    ") ranked " +
+//                    "WHERE ranked.rnk <= 3",
+//            nativeQuery = true
+//    )
+//    List<Object[]> findTop3PerSchoolAndTypeAll();
+//
+//    void deleteByUserIdAndRunningType(Long userId, RunningType runningType);
     Optional<RunningRecord> findByUserIdAndRunningType(Long userId,RunningType runningType);
 }

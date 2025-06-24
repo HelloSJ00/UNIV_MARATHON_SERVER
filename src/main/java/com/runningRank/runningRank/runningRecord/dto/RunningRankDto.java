@@ -41,7 +41,11 @@ public class RunningRankDto {
             String universityName,       // 9. OK: String (DB String)
             String studentNumber,        // 10. OK: String (DB String/null)
             String profileImage,         // 11. OK: String (DB String/null)
-            String majorName             // 12. OK: String (DB String)
+            String majorName,             // 12. OK: String (DB String)
+            boolean isNameVisible,
+            boolean isStudentNumberVisible,
+            boolean isMajorVisible,
+            String graduationStatus
     ) {
         this.type = RunningType.valueOf(runningType); // **문제 가능성: String -> Enum 변환 실패 (대소문자/오타)**
         this.marathonName = marathonName;
@@ -54,6 +58,10 @@ public class RunningRankDto {
         this.studentNumber = studentNumber;
         this.profileImageUrl = profileImage;
         this.majorName = majorName;
+        this.isNameVisible = isNameVisible;
+        this.isStudentNumberVisible = isStudentNumberVisible;
+        this.isMajorVisible = isMajorVisible;
+        this.graduationStatus = graduationStatus;
         this.rank = 0;
         this.totalCount = 0;
     }
