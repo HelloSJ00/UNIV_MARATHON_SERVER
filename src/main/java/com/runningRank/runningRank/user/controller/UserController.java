@@ -3,7 +3,9 @@ package com.runningRank.runningRank.user.controller;
 import com.runningRank.runningRank.auth.dto.UserInfo;
 import com.runningRank.runningRank.auth.dto.UserUpdateRequest;
 import com.runningRank.runningRank.auth.model.CustomUserDetails;
+import com.runningRank.runningRank.emailVerification.service.EmailVerificationService;
 import com.runningRank.runningRank.global.dto.ApiResponse;
+import com.runningRank.runningRank.user.dto.ChangePasswordDTO;
 import com.runningRank.runningRank.user.dto.PresignedUrlRequest;
 import com.runningRank.runningRank.user.dto.PresignedUrlResponse;
 import com.runningRank.runningRank.user.dto.UserVerification;
@@ -27,6 +29,8 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final EmailVerificationService emailVerificationService;
+
 
     @GetMapping("/verifications")
     public ResponseEntity<ApiResponse<List<UserVerification>>> getUserVerifications(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -79,4 +83,44 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
         }
     }
+
+    /**
+     * 아이디 인증용 이메일 보내기
+     */
+    @GetMapping("/sendMail")
+    public ResponseEntity<ApiResponse<Boolean>> requestSendVerifyEmail(@RequestParam("univEmail") String univEmail){
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .status(HttpStatus.OK.value()) // 200
+                        .message("학교 이메일 인증 요청")
+                        .data(emailVerificationService.sendVerificationCode(univEmail))
+                        .build());
+    }
+
+    /**
+     * 이메일 인증 코드 검증하기
+     */
+    @GetMapping("/verifyCode")
+    public ResponseEntity<ApiResponse<Boolean>> requestVerifyCode(
+            @RequestParam("univEmail") String univEmail,
+            @RequestParam("verifyCode") String verifyCode){
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .status(HttpStatus.OK.value()) // 200
+                        .message("비번찾기 이메일 코드 검증")
+                        .data(userService.verifyCode(univEmail,verifyCode))
+                        .build());
+    }
+
+    @PatchMapping("/changePassword")
+    public ResponseEntity<ApiResponse<Boolean>> requestChangePassword(
+            @RequestBody ChangePasswordDTO req){
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .status(HttpStatus.OK.value()) // 200
+                        .message("비밀번호 변경 완료 !")
+                        .data(userService.changeUserPassword(req.getEmail(),req.getNewPassword()))
+                        .build());
+    }
+
 }

@@ -51,7 +51,10 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/api/test/badge",
-                                "/api/user/upload-url"
+                                "/api/user/upload-url",
+                                "/api/user/sendMail",
+                                "/api/user/verifyCode",
+                                "/api/user/changePassword"
                         ).permitAll()
                 // /api/admin 경로는 'ADMIN' 역할을 가진 사용자만 접근 가능하도록 추가
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -79,7 +82,7 @@ public class SecurityConfig {
         ));
         // --- 수정 끝 ---
 
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
         config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         config.setAllowCredentials(true); // 자격 증명 (쿠키, Authorization 헤더 등) 허용
         config.setMaxAge(3600L); // Pre-flight 요청 캐싱 시간 (1시간)

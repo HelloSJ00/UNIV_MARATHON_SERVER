@@ -1,13 +1,10 @@
 package com.runningRank.runningRank.runningRecord.service;
 
-import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.runningRecord.dto.MyRankInfo;
-import com.runningRank.runningRank.runningRecord.dto.OverallRunningRankDto;
+import com.runningRank.runningRank.runningRecord.dto.RunningRankDto;
 import com.runningRank.runningRank.runningRecord.dto.RunningRecordResponse;
-import com.runningRank.runningRank.runningRecord.dto.SimpleUserDto;
 import com.runningRank.runningRank.runningRecord.repository.RunningRecordRepository;
-import io.micrometer.common.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -37,18 +34,20 @@ public class RunningRecordService {
             Long userId,
             String universityName,
             RunningType runningType,
-            String gender
+            String gender,
+            String graduationStatus
     ) {
         String uniName = (universityName != null && !universityName.isBlank()) ? universityName : null;
 
         log.info("[랭킹 조회] 종목: {}, 성별: {}, 학교: {}", runningType, gender, uniName != null ? uniName : "전체");
 
-        List<OverallRunningRankDto> records = null; // 초기화
+        List<RunningRankDto> records = null; // 초기화
         try {
             records = runningRecordRepository.getTop100Rankings(
                     runningType.name(),
                     uniName,
-                    gender
+                    gender,
+                    graduationStatus
             );
             log.info("[쿼리 실행 완료] 랭킹 데이터 조회 성공."); // 이 로그가 찍히는지 확인
         } catch (Exception e) {
@@ -63,7 +62,7 @@ public class RunningRecordService {
 
         AtomicInteger rankCounter = new AtomicInteger(1);
         records.forEach(record -> record.setRank(rankCounter.getAndIncrement()));
-        List<OverallRunningRankDto> ranking = records;
+        List<RunningRankDto> ranking = records;
 
         log.info("[랭킹 조회] 상위 {}명 조회 완료", ranking.size());
 
@@ -76,7 +75,8 @@ public class RunningRecordService {
                     userId,
                     runningType.name(),
                     gender,
-                    uniName
+                    uniName,
+                    graduationStatus
             ).orElse(null);
 
             if (myRank != null) {

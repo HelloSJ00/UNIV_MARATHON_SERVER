@@ -12,6 +12,11 @@ public class UserUpdateRequest {
     private String gender;
     private String universityEmail;
     private String universityName;
+    private String studentNumber;
     private String major;
     private boolean isChangeUniversity;
+    private boolean isNameVisible;
+    private boolean isStudentNumberVisible;
+    private boolean isMajorVisible;
+    private String graduationStatus;
 }

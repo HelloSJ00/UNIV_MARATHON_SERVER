@@ -21,4 +21,8 @@ public class UserResponse {
     private String major;
     private String profileImageUrl;
     private Role role;
+    private boolean isNameVisible;
+    private boolean isStudentNumberVisible;
+    private boolean isMajorVisible;
+    private String graduationStatus;
 }
