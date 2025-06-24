@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 
@@ -36,8 +37,11 @@ public class SignUpRequest {
     // 9.프로필 이미지
     private String profileImage;  // 프로필 이미지 URL (선택)
 
+    @JsonProperty("isNameVisible")
     private boolean isNameVisible;
+    @JsonProperty("isStudentNumberVisible")
     private boolean isStudentNumberVisible;
+    @JsonProperty("isMajorVisible")
     private boolean isMajorVisible;
     private String graduationStatus;
 }
