@@ -5,7 +5,6 @@ import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.runningRecord.dto.MyRankInfo;
 import com.runningRank.runningRank.runningRecord.dto.OverallRunningRankDto;
 import com.runningRank.runningRank.runningRecord.dto.RunningRecordResponse;
-import com.runningRank.runningRank.runningRecord.dto.SimpleUserDto;
 import com.runningRank.runningRank.runningRecord.repository.RunningRecordRepository;
 import io.micrometer.common.lang.Nullable;
 import lombok.RequiredArgsConstructor;

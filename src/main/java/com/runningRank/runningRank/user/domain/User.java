@@ -69,7 +69,7 @@ public class User {
     // 4
     @Column(nullable = false)
     private String name;
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isNameVisible = true;
 
     @Column(nullable = false)
@@ -89,13 +89,13 @@ public class User {
 
     // 8
     private String studentNumber;
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isStudentNumberVisible = true;
     // 9
     @ManyToOne
     @JoinColumn(name = "major_id")
     private Major major;
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isMajorVisible = true;
 
     // 10
@@ -124,6 +124,9 @@ public class User {
 
     @Column(nullable = false)
     private boolean isUniversityVerified;
+
+    @Enumerated(EnumType.STRING)
+    private GraduationStatus graduationStatus;
 
     public void verifyUnivEmail(String univEmail){
         this.universityEmail = univEmail;

@@ -24,6 +24,7 @@ public class OverallRunningRankDto {
     private String studentNumber; // u.studnetNumber (오타 주의: studentNumber)
     private String profileImageUrl; // u.profileImage
     private String majorName; // m.name
+//    private String graduationStatus;
 
     // 쿼리 결과에 없는 필드는 제거하거나, 아래와 같이 나중에 설정하는 방식으로 변경
     private int rank;

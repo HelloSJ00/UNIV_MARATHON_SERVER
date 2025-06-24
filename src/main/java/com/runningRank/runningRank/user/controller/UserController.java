@@ -118,7 +118,7 @@ public class UserController {
         return ResponseEntity.ok(
                 ApiResponse.<Boolean>builder()
                         .status(HttpStatus.OK.value()) // 200
-                        .message("비번찾기 이메일 코드 검증")
+                        .message("비밀번호 변경 완료 !")
                         .data(userService.changeUserPassword(req.getEmail(),req.getNewPassword()))
                         .build());
     }
