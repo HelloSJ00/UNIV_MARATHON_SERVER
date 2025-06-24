@@ -28,7 +28,7 @@ public class SignUpRequest {
     private String university;    // 대학교 이름
 
     // 7. 학번
-    private String studentId;     // 학번
+    private String studentNumber;     // 학번
 
     // 8. 전공
      private String major;         // 전공

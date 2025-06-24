@@ -33,6 +33,7 @@ public class RunningRecordController {
             @RequestParam("runningType") RunningType type,
             @RequestParam(value = "universityName", required = false) String universityName,
             @RequestParam(value = "gender") String gender,
+            @RequestParam(value = "graduationStatus") String graduationStatus,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails != null ? userDetails.getId() : null;
@@ -41,7 +42,8 @@ public class RunningRecordController {
                 userId,
                 universityName,
                 type,
-                gender
+                gender,
+                graduationStatus
         );
 
         return ResponseEntity.ok(

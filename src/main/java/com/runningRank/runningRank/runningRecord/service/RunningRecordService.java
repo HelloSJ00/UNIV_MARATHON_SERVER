@@ -34,7 +34,8 @@ public class RunningRecordService {
             Long userId,
             String universityName,
             RunningType runningType,
-            String gender
+            String gender,
+            String graduationStatus
     ) {
         String uniName = (universityName != null && !universityName.isBlank()) ? universityName : null;
 
@@ -45,7 +46,8 @@ public class RunningRecordService {
             records = runningRecordRepository.getTop100Rankings(
                     runningType.name(),
                     uniName,
-                    gender
+                    gender,
+                    graduationStatus
             );
             log.info("[쿼리 실행 완료] 랭킹 데이터 조회 성공."); // 이 로그가 찍히는지 확인
         } catch (Exception e) {
@@ -73,7 +75,8 @@ public class RunningRecordService {
                     userId,
                     runningType.name(),
                     gender,
-                    uniName
+                    uniName,
+                    graduationStatus
             ).orElse(null);
 
             if (myRank != null) {

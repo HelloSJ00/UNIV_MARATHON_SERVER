@@ -61,7 +61,7 @@ public class KakaoOAuthService {
                 .birthDate(request.getBirthDate())
                 .gender(Gender.valueOf(request.getGender().toUpperCase()))
                 .university(university)
-                .studentNumber(request.getStudentId())
+                .studentNumber(request.getStudentNumber())
                 .major(major)
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)
@@ -111,7 +111,7 @@ public class KakaoOAuthService {
                 .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
                 .university(university) // 동일하게 처리 가능
                 .major(major)  // 변경된 부분
-                .studentNumber(request.getStudentId())
+                .studentNumber(request.getStudentNumber())
                 .profileImageUrl(request.getProfileImage())
                 .role(Role.ROLE_USER)
                 .isNameVisible(request.isNameVisible())

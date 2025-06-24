@@ -44,13 +44,15 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
             WHERE rr.running_type = :runningType
               AND (:universityName IS NULL OR uni.university_name = :universityName)
               AND (:gender = 'ALL' OR u.gender = :gender)
+              AND (:graduationStatus = 'ALL' OR u.graduation_status = :graduationStatus)
             ORDER BY rr.record_time_in_seconds ASC
             LIMIT 100
             """, nativeQuery = true)
     List<RunningRankDto> getTop100Rankings(
             @Param("runningType") String runningType, // 또는 RunningType runningType
             @Param("universityName") String universityName,
-            @Param("gender") String gender
+            @Param("gender") String gender,
+            @Param("graduationStatus") String graduationStatus
     );
 
     /**
@@ -88,6 +90,7 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
                     WHERE rr.running_type = :runningType
                       AND (:gender = 'ALL' OR u.gender = :gender)
                       AND (:universityName IS NULL OR uni.university_name = :universityName)
+                      AND (:graduationStatus = 'ALL' OR u.graduation_status = :graduationStatus)
                 ) ranked
             ) AS ranked_records
             WHERE ranked_records.userId = :userId
@@ -96,7 +99,8 @@ public interface RunningRecordRepository extends JpaRepository<RunningRecord,Lon
             @Param("userId") Long userId,
             @Param("runningType") String runningType,
             @Param("gender") String gender,
-            @Param("universityName") String universityName
+            @Param("universityName") String universityName,
+            @Param("graduationStatus") String graduationStatus
     );
 
 //    @Query(
