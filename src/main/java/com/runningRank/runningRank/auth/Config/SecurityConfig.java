@@ -50,9 +50,16 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/api/test/badge"
+                                "/api/test/badge",
+                                "/api/user/upload-url",
+                                "/api/user/sendMail",
+                                "/api/user/verifyCode",
+                                "/api/user/changePassword"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                // /api/admin 경로는 'ADMIN' 역할을 가진 사용자만 접근 가능하도록 추가
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class);
@@ -63,14 +70,25 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
+
+        // --- 여기를 수정합니다 ---
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000", // 로컬 개발 환경
+                "https://univ-marathon-rank-client-isskon42k-hellosj00s-projects.vercel.app" ,// Vercel 배포 도메인,
+                "https://univ-marathon-rank-client.vercel.app/",
+                "https://www.univmarathon.com/",
+                "https://univmarathon.com/"
+                // 다른 운영 환경 도메인이 있다면 여기에 추가
+        ));
+        // --- 수정 끝 ---
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
+        config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
+        config.setAllowCredentials(true); // 자격 증명 (쿠키, Authorization 헤더 등) 허용
+        config.setMaxAge(3600L); // Pre-flight 요청 캐싱 시간 (1시간)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", config); // 모든 경로에 CORS 설정 적용
 
         return source;
     }

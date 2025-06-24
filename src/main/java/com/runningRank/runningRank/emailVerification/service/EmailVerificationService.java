@@ -102,7 +102,7 @@ public class EmailVerificationService {
     private void sendEmail(String to, String code) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
-        message.setSubject("[러닝랭크] 이메일 인증 코드");
+        message.setSubject("[유니브 마라톤] 이메일 인증 코드");
         message.setText("아래 코드를 입력해주세요:\n\n" + code);
         mailSender.send(message);
     }

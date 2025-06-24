@@ -69,6 +69,8 @@ public class User {
     // 4
     @Column(nullable = false)
     private String name;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
+    private Boolean isNameVisible = true;
 
     @Column(nullable = false)
     private LocalDate birthDate;  // ex) 2000-05-14
@@ -87,11 +89,14 @@ public class User {
 
     // 8
     private String studentNumber;
-
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
+    private Boolean isStudentNumberVisible = true;
     // 9
     @ManyToOne
     @JoinColumn(name = "major_id")
     private Major major;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
+    private Boolean isMajorVisible = true;
 
     // 10
     private String profileImageUrl;
@@ -120,6 +125,9 @@ public class User {
     @Column(nullable = false)
     private boolean isUniversityVerified;
 
+    @Enumerated(EnumType.STRING)
+    private GraduationStatus graduationStatus;
+
     public void verifyUnivEmail(String univEmail){
         this.universityEmail = univEmail;
         this.isUniversityVerified = true;
@@ -129,15 +137,23 @@ public class User {
         return Period.between(this.birthDate, LocalDate.now()).getYears();
     }
 
+    public void changePassword(String newPassword){
+        this.password = newPassword;
+    }
     /**
      * 사용자 정보를 업데이트하는 비즈니스 메서드
      * 이 메서드는 University와 Major 엔티티 객체를 직접 받도록 변경합니다.
      * DTO의 String 값을 엔티티로 변환하는 책임은 서비스 레이어에 있습니다.
      */
     public void updateInfo(UserUpdateRequest request, University newUniversity, Major newMajor) {
+
+        if(request.getProfileImageUrl() != null){
+            this.profileImageUrl = request.getProfileImageUrl();
+        }
         if (request.getName() != null) {
             this.name = request.getName();
         }
+
         if (request.getBirthDate() != null) {
             this.birthDate = request.getBirthDate();
         }
@@ -174,5 +190,19 @@ public class User {
             this.isUniversityVerified = false;
         }
         // request.isChangeUniversity()가 false면 isUniversityVerified는 변경하지 않음
+
+
+        // 개인정보 노출 정보
+        if (!request.isNameVisible()){
+            this.isNameVisible = false;
+        }
+
+        if (!request.isStudentNumberVisible()){
+            this.isStudentNumberVisible = false;
+        }
+
+        if(!request.isMajorVisible()){
+            this.isMajorVisible = false;
+        }
     }
 }

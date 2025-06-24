@@ -46,6 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("Authorization Header: " + authHeader ); // 디버깅용
         log.debug("Authorization Header: {}", authHeader);
 
+        // Authorization 헤더가 있을 때만 토큰 검증 수행
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             log.debug("Extracted JWT Token: {}", token);
@@ -66,15 +67,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 log.debug("Authentication object set in SecurityContext");
+
+                filterChain.doFilter(request, response); // 다음 필터로 정상 전달
+                return;
             } else {
                 log.warn("Invalid JWT token: {}", token);
+
+                // --- 유효하지 않은 토큰에만 401 반환 ---
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Unauthorized: Invalid token.\"}");
+                return;
             }
-        } else {
-            log.debug("No JWT token found in Authorization header");
         }
 
-        // JWT 토큰이 없거나 유효하지 않아도 다음 필터로 요청을 계속 전달
-        // (뒤에 SecurityConfig의 authorizeHttpRequests에 따라 접근이 허용/거부됨)
+        // --- Authorization 헤더가 없는 경우 필터 체인 그대로 진행 ---
+        log.debug("No JWT token found in Authorization header");
         filterChain.doFilter(request, response);
     }
 }

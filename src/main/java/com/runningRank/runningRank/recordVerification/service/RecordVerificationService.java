@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -88,30 +89,44 @@ public class RecordVerificationService {
         }
     }
 
-    public void saveRecordVerification(Long userId,String s3ImageUrl,String formattedText){
+    public void saveRecordVerification(Long userId, String s3ImageUrl, String formattedText) {
         try {
             RecordInfo info = objectMapper.readValue(formattedText, RecordInfo.class);
 
-            // 예시 출력
-            System.out.println(info.getMarathonName());
-            System.out.println(info.getRunningType());
-            System.out.println(info.getRecord());
+            log.debug("Parsed RecordInfo - marathonName: {}, runningType: {}, record: {}",
+                    info.getMarathonName(), info.getRunningType(), info.getRecord());
 
             User user = userRepository.getReferenceById(userId);
+            RunningType runningType = RunningType.valueOf(info.getRunningType());
 
+            // 1. 기존 동일한 유저 + 러닝타입 + PENDING 상태의 인증 요청 삭제
+            Optional<RecordVerification> existing = recordVerificationRepository
+                    .findByUserIdAndRunningTypeAndStatus(userId, runningType, VerificationStatus.PENDING);
+
+            if (existing.isPresent()) {
+                log.info("기존 RecordVerification(PENDING) 존재함 → 삭제 시도: userId={}, runningType={}", userId, runningType);
+                recordVerificationRepository.delete(existing.get());
+                recordVerificationRepository.flush(); // 유니크 제약 위반 방지
+                log.info("기존 RecordVerification 삭제 완료");
+            }
+
+            // 2. 새로운 인증 요청 생성 및 저장
             RecordVerification recordVerification = RecordVerification.builder()
                     .user(user)
                     .imageUrl(s3ImageUrl)
                     .marathonName(info.getMarathonName())
-                    .runningType(RunningType.valueOf(info.getRunningType()))
+                    .runningType(runningType)
                     .recordTime(convertToSeconds(info.getRecord()))
                     .status(VerificationStatus.PENDING)
                     .build();
 
             recordVerificationRepository.save(recordVerification);
+            log.info("새로운 RecordVerification 저장 완료: userId={}, runningType={}, marathonName={}",
+                    userId, runningType, info.getMarathonName());
+
         } catch (Exception e) {
-            log.error("JSON 파싱 실패", e);
-            throw new RuntimeException("기록 파싱 실패", e);
+            log.error("기록 인증 요청 처리 실패: JSON 파싱 또는 저장 중 예외 발생", e);
+            throw new RuntimeException("기록 파싱 또는 저장 실패", e);
         }
     }
 

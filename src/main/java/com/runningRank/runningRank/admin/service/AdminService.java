@@ -29,6 +29,11 @@ public class AdminService {
     private final UserRepository userRepository;
     private final RunningRecordRepository runningRecordRepository;
 
+    /**
+     * 검토중인 기록들 조회
+     * @param pageable
+     * @return
+     */
     public Page<RecordVerificationInfo> getPendingRecordVerifications(Pageable pageable) {
         return recordVerificationRepository.findByStatus(VerificationStatus.PENDING, pageable)
                 .map(record -> RecordVerificationInfo.builder()
@@ -42,6 +47,18 @@ public class AdminService {
                         .build());
     }
 
+    /**
+     * 검토중인 기록 승인
+     * @param userId
+     * @param recordVerificationId
+     * @return
+     */
+    /**
+     * 검토중인 기록 승인
+     * @param userId
+     * @param recordVerificationId
+     * @return
+     */
     @Transactional
     public boolean confirmRecordVerification(Long userId, Long recordVerificationId) {
         try {
@@ -58,26 +75,41 @@ public class AdminService {
                 return false;
             }
 
-            // 기존 기록이 있다면 수정
-            Optional<RunningRecord> existingRecordOpt = runningRecordRepository
-                    .findByUserIdAndRunningType(userId, recordVerification.getRunningType());
+            RunningType runningType = recordVerification.getRunningType();
 
-            if (existingRecordOpt.isPresent()) {
-                RunningRecord existing = existingRecordOpt.get();
-                existing.updateRecord(recordVerification.getMarathonName(),recordVerification.getRecordTime()); // 이 메서드는 직접 정의해야 함
-            } else {
-                RunningRecord newRecord = RunningRecord.builder()
-                        .runningType(recordVerification.getRunningType())
-                        .marathonName(recordVerification.getMarathonName())
-                        .recordTimeInSeconds(recordVerification.getRecordTime())
-                        .createdAt(LocalDateTime.now())
-                        .user(user)
-                        .build();
-                runningRecordRepository.save(newRecord);
+            // 3. 기존 VERIFIED 상태의 RunningRecord가 있다면 삭제
+            Optional<RecordVerification> existingVerified = recordVerificationRepository
+                    .findByUserIdAndRunningTypeAndStatus(userId, runningType, VerificationStatus.VERIFIED);
+
+            if (existingVerified.isPresent()) {
+                log.info("기존 VERIFIED 기록 존재함 → 삭제: userId={}, runningType={}", userId, runningType);
+                recordVerificationRepository.delete(existingVerified.get());
+                recordVerificationRepository.flush(); // 유니크 제약 위반 방지
+
+                Optional<RunningRecord> runningRecord = runningRecordRepository.findByUserIdAndRunningType(userId,runningType);
+                runningRecordRepository.delete(runningRecord.get());
+                runningRecordRepository.flush();
+                log.info("기존 기록 삭제 완료");
+
+
             }
+
+            // 4. 새 기록 생성 및 저장
+            RunningRecord newRecord = RunningRecord.builder()
+                    .runningType(runningType)
+                    .marathonName(recordVerification.getMarathonName())
+                    .recordTimeInSeconds(recordVerification.getRecordTime())
+                    .createdAt(LocalDateTime.now())
+                    .user(user)
+                    .build();
+
+            runningRecordRepository.save(newRecord);
+            log.info("새 RunningRecord 저장 완료: userId={}, runningType={}, time={}초",
+                    userId, runningType, recordVerification.getRecordTime());
 
             // 5. 검증 상태 변경
             recordVerification.changeStatus(VerificationStatus.VERIFIED);
+            log.info("RecordVerification 상태 VERIFIED로 변경: id={}", recordVerificationId);
 
             return true;
 
@@ -87,6 +119,11 @@ public class AdminService {
         }
     }
 
+    /**
+     * 검토중인 기록 거절
+     * @param recordVerificationId
+     * @return
+     */
     @Transactional
     public boolean rejectRecordVerification(Long recordVerificationId) {
         try {

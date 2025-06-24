@@ -1,12 +1,25 @@
 package com.runningRank.runningRank.user.service;
 
-import com.runningRank.runningRank.recordVerification.repository.RecordVerificationRepository; // 사용되지 않는 경우 제거 고려
+import com.runningRank.runningRank.auth.dto.UserInfo;
+import com.runningRank.runningRank.auth.dto.UserUpdateRequest;
+import com.runningRank.runningRank.emailVerification.domain.EmailVerification;
+import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
+import com.runningRank.runningRank.emailVerification.repository.EmailVerificationRepository;
+import com.runningRank.runningRank.major.domain.Major;
+import com.runningRank.runningRank.major.repository.MajorRepository;
+import com.runningRank.runningRank.university.domain.University;
+import com.runningRank.runningRank.university.repository.UniversityRepository;
+import com.runningRank.runningRank.user.domain.User;
 import com.runningRank.runningRank.user.dto.PresignedUrlRequest;
 import com.runningRank.runningRank.user.dto.PresignedUrlResponse;
 import com.runningRank.runningRank.user.dto.UserVerification;
 import com.runningRank.runningRank.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -19,9 +32,14 @@ import java.util.UUID; // UUID 추가
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UniversityRepository universityRepository;
+    private final MajorRepository majorRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailVerificationRepository emailVerificationRepository;
     private final S3Presigner s3Presigner; // S3Presigner 빈은 별도의 @Configuration에서 정의되어야 합니다.
 
     @Value("${cloud.aws.s3.bucket}")
@@ -35,6 +53,37 @@ public class UserService {
         return userRepository.findGroupedVerification(userId);
     }
 
+    /**
+     * 내 정보 수정
+     */
+    @Transactional
+    public UserInfo updateUserInfo(UserUpdateRequest request, Long userId) {
+        // 1. 유저 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 유저를 찾을 수 없습니다."));
+
+        // 2. 대학 및 전공 처리
+        University newUniversity = null;
+        if (request.getUniversityName() != null && !request.getUniversityName().isBlank()) {
+            newUniversity = universityRepository.findByUniversityName(request.getUniversityName())
+                    .orElseThrow(() -> new EntityNotFoundException("대학교를 찾을 수 없습니다: " + request.getUniversityName()));
+        }
+
+        Major newMajor = null;
+        if (request.getMajor() != null && !request.getMajor().isBlank()) {
+            if (newUniversity == null) {
+                throw new IllegalStateException("전공을 찾기 위해선 대학 정보가 필요합니다.");
+            }
+            newMajor = majorRepository.findByNameAndUniversityName(request.getMajor(), newUniversity.getUniversityName())
+                    .orElseThrow(() -> new EntityNotFoundException("해당 대학교에서 전공을 찾을 수 없습니다: " + request.getMajor()));
+        }
+
+        // 3. 유저 정보 업데이트
+        user.updateInfo(request, newUniversity, newMajor);
+
+        // 4. DTO 응답 변환 및 반환
+        return UserInfo.from(user);
+    }
     /**
      * 클라이언트가 S3에 직접 파일을 업로드할 수 있도록 Presigned URL을 생성합니다.
      *
@@ -86,4 +135,61 @@ public class UserService {
         // 6. 응답 객체 반환
         return new PresignedUrlResponse(presignedUrl.toString(), fileUrl);
     }
+
+    /**
+     * 비번찾기 인증 코드 검증 로직
+     * @param univEmail
+     * @param inputCode
+     */
+    public boolean verifyCode(String univEmail, String inputCode) {
+        try{
+            EmailVerification verification = emailVerificationRepository
+                    .findTopByEmailAndStatusOrderByCreatedAtDesc(univEmail, VerificationStatus.PENDING)
+                    .orElseThrow(() -> new IllegalArgumentException("인증 요청이 없습니다."));
+
+            if (verification.isExpired()) {
+                verification.changeStatus(VerificationStatus.EXPIRED);
+                emailVerificationRepository.save(verification);
+                throw new IllegalStateException("인증 코드가 만료되었습니다.");
+            }
+
+            if (!verification.isCodeMatched(inputCode)) {
+                throw new IllegalArgumentException("인증 코드가 일치하지 않습니다.");
+            }
+
+            // 인증 성공
+            verification.changeStatus(VerificationStatus.VERIFIED);
+            emailVerificationRepository.save(verification);
+            return true;
+        } catch (Exception e) {
+            // 로그 찍기 등 예외 처리
+            log.error("이메일 인증 코드 확인 실패: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 비밀번호 바꾸기
+     * @param email
+     * @param newPassword
+     * @return
+     */
+    @Transactional
+    public boolean changeUserPassword(String email, String newPassword) {
+        log.info("비밀번호 변경 요청 - email: {}", email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("비밀번호 변경 실패 - 존재하지 않는 이메일: {}", email);
+                    return new IllegalArgumentException("존재하지 않는 사용자입니다.");
+                });
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.changePassword(encodedPassword);
+
+        log.info("비밀번호 변경 성공 - userId: {}, email: {}", user.getId(), email);
+
+        return true;
+    }
+
 }

@@ -1,16 +1,22 @@
 package com.runningRank.runningRank.user.controller;
 
+import com.runningRank.runningRank.auth.dto.UserInfo;
+import com.runningRank.runningRank.auth.dto.UserUpdateRequest;
 import com.runningRank.runningRank.auth.model.CustomUserDetails;
+import com.runningRank.runningRank.emailVerification.service.EmailVerificationService;
 import com.runningRank.runningRank.global.dto.ApiResponse;
+import com.runningRank.runningRank.user.dto.ChangePasswordDTO;
 import com.runningRank.runningRank.user.dto.PresignedUrlRequest;
 import com.runningRank.runningRank.user.dto.PresignedUrlResponse;
 import com.runningRank.runningRank.user.dto.UserVerification;
 import com.runningRank.runningRank.user.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,26 +29,39 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final EmailVerificationService emailVerificationService;
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return ResponseEntity.ok("Hello " + auth.getName());
-    }
 
     @GetMapping("/verifications")
-    public ResponseEntity<ApiResponse<List<UserVerification>>> getUserVerifications() {
-        // 🔐 현재 로그인한 유저의 ID를 SecurityContext에서 가져옴
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    public ResponseEntity<ApiResponse<List<UserVerification>>> getUserVerifications(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getId();
-
         return ResponseEntity.ok(ApiResponse.<List<UserVerification>>builder()
                 .status(HttpStatus.OK.value())
                 .message("유저 인증 기록 조회 성공")
                 .data(userService.getUserVerifications(userId))
                 .build());
     }
+    /**
+     * 사용자 정보를 수정하는 API 엔드포인트.
+     * PUT /api/users/update-user-info
+     *
+     * @param request UserUpdateRequest DTO (수정할 사용자 정보)
+     * @return 수정 성공 여부를 나타내는 ResponseEntity<ApiResponse<Boolean>>
+     */
+    @PutMapping("/update-user-info")
+    public ResponseEntity<ApiResponse<UserInfo>> updateUserInfo(
+            @RequestBody UserUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getId();
+
+        return ResponseEntity.ok(ApiResponse.<UserInfo>builder()
+                .status(HttpStatus.OK.value())
+                .message("유저 정보 업데이트 완료")
+                .data(userService.updateUserInfo(request, userId))
+                .build());
+    }
+
 
     /**
      * 클라이언트가 S3에 파일을 직접 업로드할 수 있도록 Presigned URL을 생성하는 API 엔드포인트.
@@ -64,4 +83,44 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
         }
     }
+
+    /**
+     * 아이디 인증용 이메일 보내기
+     */
+    @GetMapping("/sendMail")
+    public ResponseEntity<ApiResponse<Boolean>> requestSendVerifyEmail(@RequestParam("univEmail") String univEmail){
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .status(HttpStatus.OK.value()) // 200
+                        .message("학교 이메일 인증 요청")
+                        .data(emailVerificationService.sendVerificationCode(univEmail))
+                        .build());
+    }
+
+    /**
+     * 이메일 인증 코드 검증하기
+     */
+    @GetMapping("/verifyCode")
+    public ResponseEntity<ApiResponse<Boolean>> requestVerifyCode(
+            @RequestParam("univEmail") String univEmail,
+            @RequestParam("verifyCode") String verifyCode){
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .status(HttpStatus.OK.value()) // 200
+                        .message("비번찾기 이메일 코드 검증")
+                        .data(userService.verifyCode(univEmail,verifyCode))
+                        .build());
+    }
+
+    @PatchMapping("/changePassword")
+    public ResponseEntity<ApiResponse<Boolean>> requestChangePassword(
+            @RequestBody ChangePasswordDTO req){
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .status(HttpStatus.OK.value()) // 200
+                        .message("비밀번호 변경 완료 !")
+                        .data(userService.changeUserPassword(req.getEmail(),req.getNewPassword()))
+                        .build());
+    }
+
 }
