@@ -152,9 +152,9 @@ public class User {
             this.name = request.getName();
         }
 
-        if (request.getBirthDate() != null) {
-            this.birthDate = request.getBirthDate();
-        }
+//        if (request.getBirthDate() != null) {
+//            this.birthDate = request.getBirthDate();
+//        }
         if (request.getGender() != null) {
             this.gender = Gender.valueOf(request.getGender());
         }
@@ -193,14 +193,20 @@ public class User {
         // 개인정보 노출 정보
         if (!request.isNameVisible()){
             this.isNameVisible = false;
+        }else{
+            this.isNameVisible = true;
         }
 
         if (!request.isStudentNumberVisible()){
             this.isStudentNumberVisible = false;
+        }else{
+            this.isStudentNumberVisible = true;
         }
 
         if(!request.isMajorVisible()){
             this.isMajorVisible = false;
+        }else{
+            this.isMajorVisible = true;
         }
 
         if(request.getGraduationStatus()!= null){
