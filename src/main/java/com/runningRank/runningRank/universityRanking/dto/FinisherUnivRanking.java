@@ -13,5 +13,6 @@ public class FinisherUnivRanking {
     int ranking;
     String universityName;
     String universityImage;
+    int finisherCount;
 }
 

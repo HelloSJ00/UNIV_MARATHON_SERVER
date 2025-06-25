@@ -28,7 +28,8 @@ public class UniversityRankingRepository {
             SELECT
                 RANK() OVER (ORDER BY COUNT(*) DESC) AS ranking,
                 uni.university_name,
-                uni.university_image_url AS university_image -- DB에 이미지 URL 컬럼이 있다고 가정
+                uni.university_image_url AS university_image, -- DB에 이미지 URL 컬럼이 있다고 가정,
+                COUNT(*) AS finisher_count
             FROM
                 running_record rr
             LEFT JOIN
@@ -52,7 +53,8 @@ public class UniversityRankingRepository {
             return new FinisherUnivRanking(
                     rs.getInt("ranking"),
                     rs.getString("university_name"),
-                    rs.getString("university_image")
+                    rs.getString("university_image"),
+                    rs.getInt("finisher_count")
             );
         },runningType); // <--- 여기가 중요! 'runningType' 파라미터 추가
         // ---------------------
