@@ -146,9 +146,9 @@ public class AuthService {
 
         // 2. 전공 이름과 (선택적으로) 대학교로 Major 엔티티 조회 (요청에 major가 있다면)
         // 전공은 특정 대학교에 속하는 경우가 많으므로, 대학교와 전공명을 함께 사용하여 조회하는 것이 일반적입니다.
-        if (request.getMajor() != null && !request.getMajor().isEmpty()) {
-                newMajor = majorRepository.findByNameAndUniversityName(request.getMajor(), newUniversity.getUniversityName())
-                        .orElseThrow(() -> new EntityNotFoundException("해당 대학교에서 전공을 찾을 수 없습니다: " + request.getMajor()));
+        if (request.getMajorName() != null && !request.getMajorName().isEmpty()) {
+                newMajor = majorRepository.findByNameAndUniversityName(request.getMajorName(), newUniversity.getUniversityName())
+                        .orElseThrow(() -> new EntityNotFoundException("해당 대학교에서 전공을 찾을 수 없습니다: " + request.getMajorName()));
             }
 
         // 3. User 엔티티의 업데이트 메서드 호출

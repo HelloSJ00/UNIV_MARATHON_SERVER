@@ -70,12 +70,12 @@ public class UserService {
         }
 
         Major newMajor = null;
-        if (request.getMajor() != null && !request.getMajor().isBlank()) {
+        if (request.getMajorName() != null && !request.getMajorName().isBlank()) {
             if (newUniversity == null) {
                 throw new IllegalStateException("전공을 찾기 위해선 대학 정보가 필요합니다.");
             }
-            newMajor = majorRepository.findByNameAndUniversityName(request.getMajor(), newUniversity.getUniversityName())
-                    .orElseThrow(() -> new EntityNotFoundException("해당 대학교에서 전공을 찾을 수 없습니다: " + request.getMajor()));
+            newMajor = majorRepository.findByNameAndUniversityName(request.getMajorName(), newUniversity.getUniversityName())
+                    .orElseThrow(() -> new EntityNotFoundException("해당 대학교에서 전공을 찾을 수 없습니다: " + request.getMajorName()));
         }
 
         // 3. 유저 정보 업데이트
