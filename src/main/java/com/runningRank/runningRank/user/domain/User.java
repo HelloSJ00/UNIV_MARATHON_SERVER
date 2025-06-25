@@ -6,7 +6,9 @@ import com.runningRank.runningRank.major.domain.Major;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.university.domain.University;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@Slf4j
 public class User {
     /**
      *  1. PK
@@ -144,67 +147,82 @@ public class User {
      * DTO의 String 값을 엔티티로 변환하는 책임은 서비스 레이어에 있습니다.
      */
     public void updateInfo(UserUpdateRequest request, University newUniversity, Major newMajor) {
+        log.info("Starting updateInfo for user ID: {}", this.id);
+        log.debug("Request details: {}", request); // 디버그 레벨로 요청 DTO 내용 로그
 
-        if(request.getProfileImageUrl() != null){
+        if (request.getProfileImageUrl() != null) {
             this.profileImageUrl = request.getProfileImageUrl();
+            log.debug("Updated profileImageUrl to: {}", this.profileImageUrl);
         }
         if (request.getName() != null) {
             this.name = request.getName();
+            log.debug("Updated name to: {}", this.name);
         }
 
-        if (request.getBirthDate() != null) {
-            this.birthDate = request.getBirthDate();
-        }
         if (request.getGender() != null) {
-            this.gender = Gender.valueOf(request.getGender());
+            try {
+                this.gender = Gender.valueOf(request.getGender().toUpperCase()); // 대소문자 문제 방지
+                log.debug("Updated gender to: {}", this.gender);
+            } catch (IllegalArgumentException e) {
+                log.error("Invalid Gender value received: {}. Error: {}", request.getGender(), e.getMessage());
+                // 에러 처리: 예외를 다시 던지거나, 기본값 설정 등
+                throw e; // 예외를 다시 던져서 서비스 레이어에서 처리하도록 유도
+            }
         }
         if (request.getUniversityEmail() != null) {
             this.universityEmail = request.getUniversityEmail();
+            log.debug("Updated universityEmail to: {}", this.universityEmail);
         }
 
         // University 엔티티가 변경되었을 경우에만 업데이트
-        // (null이 아니고, 기존과 다른 경우)
         if (newUniversity != null && !newUniversity.equals(this.university)) {
+            log.debug("University changed from {} to {}", this.university.getUniversityName(), newUniversity.getUniversityName());
             this.university = newUniversity;
-            // 대학교가 변경되면 인증 상태 초기화
             this.isUniversityVerified = false;
+            log.debug("isUniversityVerified set to false due to university change.");
         }
 
         // Major 엔티티가 변경되었을 경우에만 업데이트
         if (newMajor != null && !newMajor.equals(this.major)) {
+            log.debug("Major changed from {} to {}", this.major.getName(), newMajor.getName());
             this.major = newMajor;
-            // 전공이 변경되면 인증 상태 초기화
-            // (보통 대학교 변경 시만 초기화하지만, 전공 변경도 포함할 수 있음)
-            if (!request.isChangeUniversity()) { // 대학교 변경으로 이미 false가 된 경우가 아니라면
+            if (!request.isChangeUniversity()) {
                 this.isUniversityVerified = false;
+                log.debug("isUniversityVerified set to false due to major change (not university change).");
             }
         }
 
-        // isChangeUniversity는 명시적인 요청에 따라 isUniversityVerified를 초기화 (앞선 로직과 중복될 수 있으므로 조절)
-        // 만약 isChangeUniversity가 '사용자가 대학교/전공 정보를 바꿨다고 명시적으로 체크한 경우'라면
-        // 위에 University/Major 객체 변경으로 isUniversityVerified가 false 되는 로직보다 우선하거나 함께 적용되어야 합니다.
-        // 여기서는 request.isChangeUniversity()가 true일 때 무조건 false로 만들도록 처리합니다.
         if (request.isChangeUniversity()) {
             this.isUniversityVerified = false;
+            log.debug("isUniversityVerified explicitly set to false by request.isChangeUniversity.");
         }
-        // request.isChangeUniversity()가 false면 isUniversityVerified는 변경하지 않음
-
 
         // 개인정보 노출 정보
-        if (!request.isNameVisible()){
-            this.isNameVisible = false;
+        this.isNameVisible = request.isNameVisible();
+        this.isStudentNumberVisible = request.isStudentNumberVisible();
+        this.isMajorVisible = request.isMajorVisible();
+        log.debug("Visibility settings: Name={}, StudentNumber={}, Major={}",
+                this.isNameVisible, this.isStudentNumberVisible, this.isMajorVisible);
+
+        // GraduationStatus 처리 개선
+        if (request.getGraduationStatus() != null && !request.getGraduationStatus().trim().isEmpty()) { // .trim() 추가하여 공백 문자열도 처리
+            try {
+                this.graduationStatus = GraduationStatus.valueOf(request.getGraduationStatus().toUpperCase());
+                log.debug("Updated graduationStatus to: {}", this.graduationStatus);
+            } catch (IllegalArgumentException e) {
+                log.error("Invalid GraduationStatus value received: {}. Error: {}", request.getGraduationStatus(), e.getMessage());
+                // 유효하지 않은 값이라면, 어떻게 처리할지 결정해야 합니다.
+                // 1. 예외를 다시 던져서 클라이언트에게 알림
+                throw new IllegalArgumentException("유효하지 않은 졸업 상태 값입니다: " + request.getGraduationStatus());
+                // 2. 현재 graduationStatus 값을 유지 (변경하지 않음)
+                // 3. 특정 기본값으로 설정 (예: GraduationStatus.ENROLLED)
+            }
+        } else {
+            // 요청에 graduationStatus가 없거나 빈 문자열/공백만 있을 경우
+            log.debug("graduationStatus not provided or empty in request. Keeping current status: {}", this.graduationStatus);
+            // 필요하다면 this.graduationStatus = null; 또는 특정 기본값으로 설정 가능
         }
 
-        if (!request.isStudentNumberVisible()){
-            this.isStudentNumberVisible = false;
-        }
-
-        if(!request.isMajorVisible()){
-            this.isMajorVisible = false;
-        }
-
-        if(request.getGraduationStatus()!= null){
-            this.graduationStatus = GraduationStatus.valueOf(request.getGraduationStatus());
-        }
+        log.info("Finished updateInfo for user ID: {}", this.id);
     }
 }

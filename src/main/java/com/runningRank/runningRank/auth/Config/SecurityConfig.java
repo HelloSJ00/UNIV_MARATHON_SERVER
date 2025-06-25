@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 "/api/user/upload-url",
                                 "/api/user/sendMail",
                                 "/api/user/verifyCode",
-                                "/api/user/changePassword"
+                                "/api/user/changePassword",
+                                "/api/rankings/universities/**"
                         ).permitAll()
                 // /api/admin 경로는 'ADMIN' 역할을 가진 사용자만 접근 가능하도록 추가
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
