@@ -21,4 +21,6 @@ public class University {
     private String universityName;
 
     private String emailDomain;
+
+    private String university_image_url;
 }
