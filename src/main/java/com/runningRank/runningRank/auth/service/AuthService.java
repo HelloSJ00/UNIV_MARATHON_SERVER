@@ -1,15 +1,11 @@
 package com.runningRank.runningRank.auth.service;
 
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.jwt.JwtProvider;
 import com.runningRank.runningRank.major.domain.Major;
 import com.runningRank.runningRank.major.repository.MajorRepository;
 import com.runningRank.runningRank.university.domain.University;
 import com.runningRank.runningRank.university.repository.UniversityRepository;
-import com.runningRank.runningRank.user.domain.Gender;
-import com.runningRank.runningRank.user.domain.GraduationStatus;
-import com.runningRank.runningRank.user.domain.Role;
 import com.runningRank.runningRank.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -42,46 +38,27 @@ public class AuthService {
         }
         // 전공명으로만 조회시 중복 발생
         // 전공명,학교명 으로 Major 엔티티 조회
-        Major major = majorRepository.findByNameAndUniversityName(request.getMajor(),request.getUniversity())
-                .orElseThrow(() -> new IllegalArgumentException("해당 전공이 존재하지 않습니다."));
-
+        // 2. 관련 엔티티 조회 (조회 로직 집중)
+        // 학교명 조회
         University university = universityRepository.findByUniversityName(request.getUniversity())
                 .orElseThrow(() -> new IllegalArgumentException("해당 학교가 존재하지 않습니다."));
-        // User 객체 생성
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // 비밀번호 암호화
-                .name(request.getName())
-                .birthDate(request.getBirthDate())
-                .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
-                .university(university) // 동일하게 처리 가능
-                .major(major)  // 변경된 부분
-                .studentNumber(request.getStudentNumber())
-                .profileImageUrl(request.getProfileImage())
-                .role(Role.ROLE_USER)
-                .isNameVisible(request.isNameVisible())
-                .isStudentNumberVisible(request.isStudentNumberVisible())
-                .isMajorVisible(request.isMajorVisible())
-                .graduationStatus(GraduationStatus.valueOf(request.getGraduationStatus()))
-                .build();
-        // 저장
+
+        // 전공명과 학교명으로 Major 엔티티 조회
+        Major major = majorRepository.findByNameAndUniversityName(request.getMajor(), request.getUniversity())
+                .orElseThrow(() -> new IllegalArgumentException("해당 전공이 존재하지 않습니다."));
+
+
+        // 3. 비밀번호 암호화 (패스워드 인코더의 책임)
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
+        // 4. User 객체 생성 (User 엔티티의 정적 팩토리 메서드 활용)
+        User user = User.create(request, encodedPassword, university, major);
+
+        // 5. User 저장
         User savedUser = userRepository.save(user);
-        return UserResponse.builder()
-                .id(savedUser.getId())
-                .email(savedUser.getEmail())
-                .name(savedUser.getName())
-                .birthDate(request.getBirthDate())
-                .gender(savedUser.getGender())
-                .university(savedUser.getUniversity())
-                .studentNumber(savedUser.getStudentNumber())
-                .major(savedUser.getMajor().getName())
-                .profileImageUrl(savedUser.getProfileImageUrl())
-                .role(savedUser.getRole())
-                .isNameVisible(savedUser.getIsNameVisible())
-                .isStudentNumberVisible(savedUser.getIsStudentNumberVisible())
-                .isMajorVisible(savedUser.getIsMajorVisible())
-                .graduationStatus(String.valueOf(savedUser.getGraduationStatus()))
-                .build();
+
+        // 6. UserResponse DTO 변환 (UserResponse DTO의 책임)
+        return UserResponse.from(savedUser);
     }
 
     public LoginResponse login(LoginRequest request){
