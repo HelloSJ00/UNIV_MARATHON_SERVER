@@ -3,7 +3,11 @@ package com.runningRank.runningRank.recordVerification.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.runningRank.runningRank.certificateProcessingJob.domain.CertificateProcessingJob;
+import com.runningRank.runningRank.certificateProcessingJob.domain.JobStatus;
+import com.runningRank.runningRank.certificateProcessingJob.respository.CertificateProcessingJobRepository;
 import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
+import com.runningRank.runningRank.messaging.OcrSqsProducer;
 import com.runningRank.runningRank.recordVerification.domain.RecordVerification;
 import com.runningRank.runningRank.recordVerification.dto.RecordInfo;
 import com.runningRank.runningRank.recordVerification.repository.RecordVerificationRepository;
@@ -18,6 +22,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,29 +32,52 @@ public class RecordVerificationService {
 
     private final RecordVerificationLambdaClient lambdaClient;
     private final RecordVerificationRepository recordVerificationRepository;
+    private final CertificateProcessingJobRepository certificateProcessingJobRepository;
+    private final OcrSqsProducer ocrSqsProducer;
     private final UserRepository userRepository;
     private final S3Client s3Client;
     private final ObjectMapper objectMapper;
     private static final String RESULT_BUCKET = "univ-marathon-rank";
 
-    public void createRecordVerification(Long userId, String s3ImageUrl) {
-        try {
-            log.info("🚀 기록 검증 시작: {}", s3ImageUrl);
+//    public void createRecordVerification(Long userId, String s3ImageUrl) {
+//        try {
+//            log.info("🚀 기록 검증 시작: {}", s3ImageUrl);
+//
+//            String ocrResponseJson = callOcrLambda(s3ImageUrl);
+//            String ocrResultS3Key = extractOcrResultS3Key(ocrResponseJson);
+//
+//            String gptResponseJson = callGptLambda(ocrResultS3Key);
+//            String formattedResultS3Key = extractFormattedResultS3Key(gptResponseJson);
+//
+//            String formattedText = downloadAndParseFormattedResult(formattedResultS3Key);
+//
+//            saveRecordVerification(userId, s3ImageUrl, formattedText);
+//
+//        } catch (Exception e) {
+//            log.error("🚨 기록 검증 중 오류 발생", e);
+//            throw new RuntimeException("기록 검증 실패", e);
+//        }
 
-            String ocrResponseJson = callOcrLambda(s3ImageUrl);
-            String ocrResultS3Key = extractOcrResultS3Key(ocrResponseJson);
 
-            String gptResponseJson = callGptLambda(ocrResultS3Key);
-            String formattedResultS3Key = extractFormattedResultS3Key(gptResponseJson);
+    public UUID createRecordVerification(Long userId, String s3ImageUrl) {
+        log.info("🚀 기록 검증 Job 생성 시작: {}", s3ImageUrl);
 
-            String formattedText = downloadAndParseFormattedResult(formattedResultS3Key);
+        UUID jobId = UUID.randomUUID();
 
-            saveRecordVerification(userId, s3ImageUrl, formattedText);
+        // 1. DB에 PENDING 상태로 Job 저장
+        CertificateProcessingJob job = CertificateProcessingJob.builder()
+                .id(jobId)
+                .user(userRepository.getReferenceById(userId))
+                .originalS3Url(s3ImageUrl)
+                .status(JobStatus.PENDING)
+                .build();
 
-        } catch (Exception e) {
-            log.error("🚨 기록 검증 중 오류 발생", e);
-            throw new RuntimeException("기록 검증 실패", e);
-        }
+        certificateProcessingJobRepository.save(job);
+
+        // 2. OCR SQS 큐에 메시지 전송
+        ocrSqsProducer.sendOcrJob(jobId, s3ImageUrl);
+
+        return jobId;
     }
 
     private String callOcrLambda(String s3ImageUrl) {

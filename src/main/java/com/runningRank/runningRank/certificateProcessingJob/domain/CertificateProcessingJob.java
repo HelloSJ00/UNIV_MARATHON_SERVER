@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.certificateProcessingJob.domain;
 
+import com.runningRank.runningRank.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
