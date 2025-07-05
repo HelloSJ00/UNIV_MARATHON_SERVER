@@ -80,32 +80,32 @@ public class RecordVerificationService {
         return jobId;
     }
 
-    private String callOcrLambda(String s3ImageUrl) {
-        // OCR Lambda 호출
-        String ocrResponseJson = lambdaClient.callGoogleVisionOCR(s3ImageUrl);
-        log.info("✅ OCR Lambda 응답 JSON: {}", ocrResponseJson);
-        return ocrResponseJson;
-    }
+//    private String callOcrLambda(String s3ImageUrl) {
+//        // OCR Lambda 호출
+//        String ocrResponseJson = lambdaClient.callGoogleVisionOCR(s3ImageUrl);
+//        log.info("✅ OCR Lambda 응답 JSON: {}", ocrResponseJson);
+//        return ocrResponseJson;
+//    }
 
-    private String extractOcrResultS3Key(String ocrResponseJson) {
-        try {
-            // OCR 결과에서 S3 Key 추출
-            JsonNode ocrJson = objectMapper.readTree(ocrResponseJson); // 기존 인스턴스 사용
-            String ocrResultS3Key = ocrJson.get("ocrResultS3Key").asText();
-            log.info("📁 OCR 결과 S3 Key: {}", ocrResultS3Key);
-            return ocrResultS3Key;
-        } catch (Exception e) {
-            log.error("OCR 응답 JSON 파싱 중 오류 발생: {}", ocrResponseJson, e);
-            throw new RuntimeException("OCR 결과 S3 Key 추출 실패", e);
-        }
-    }
+//    private String extractOcrResultS3Key(String ocrResponseJson) {
+//        try {
+//            // OCR 결과에서 S3 Key 추출
+//            JsonNode ocrJson = objectMapper.readTree(ocrResponseJson); // 기존 인스턴스 사용
+//            String ocrResultS3Key = ocrJson.get("ocrResultS3Key").asText();
+//            log.info("📁 OCR 결과 S3 Key: {}", ocrResultS3Key);
+//            return ocrResultS3Key;
+//        } catch (Exception e) {
+//            log.error("OCR 응답 JSON 파싱 중 오류 발생: {}", ocrResponseJson, e);
+//            throw new RuntimeException("OCR 결과 S3 Key 추출 실패", e);
+//        }
+//    }
 
-    private String callGptLambda(String ocrResultS3Key) {
-        // GPT Lambda 호출
-        String gptResponseJson = lambdaClient.callGptFormattingLambda(ocrResultS3Key);
-        log.info("✅ GPT Lambda 응답 JSON: {}", gptResponseJson);
-        return gptResponseJson;
-    }
+//    private String callGptLambda(String ocrResultS3Key) {
+//        // GPT Lambda 호출
+//        String gptResponseJson = lambdaClient.callGptFormattingLambda(ocrResultS3Key);
+//        log.info("✅ GPT Lambda 응답 JSON: {}", gptResponseJson);
+//        return gptResponseJson;
+//    }
 
     public String downloadAndParseFormattedResult(String formattedResultS3Key) {
         // S3에서 해당 JSON 파일 다운로드 요청 객체 생성
