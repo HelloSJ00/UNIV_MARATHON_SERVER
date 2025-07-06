@@ -20,12 +20,12 @@ public class OcrSqsProducer {
     private final SqsClient sqsClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${aws.sqs.ocrQueueUrl}")
+    @Value("${cloud.aws.sqs.ocr-queue-url}")
     private String ocrQueueUrl;
 
-    public void sendOcrJob(UUID jobId, String s3Url) {
+    public void sendOcrJob(Long userId, UUID jobId, String s3ImageUrl) {
         try {
-            OcrJobMessage message = new OcrJobMessage(jobId, s3Url);
+            OcrJobMessage message = new OcrJobMessage(userId,jobId, s3ImageUrl);
             String body = objectMapper.writeValueAsString(message);
 
             sqsClient.sendMessage(SendMessageRequest.builder()

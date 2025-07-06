@@ -11,8 +11,9 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OcrJobMessage {
+public class GptJobMessage {
     private Long userId;
     private UUID jobId;
     private String s3ImageUrl;
+    private String s3TextUrl;
 }

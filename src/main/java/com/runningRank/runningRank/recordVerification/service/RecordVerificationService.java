@@ -7,6 +7,7 @@ import com.runningRank.runningRank.certificateProcessingJob.domain.CertificatePr
 import com.runningRank.runningRank.certificateProcessingJob.domain.JobStatus;
 import com.runningRank.runningRank.certificateProcessingJob.respository.CertificateProcessingJobRepository;
 import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
+import com.runningRank.runningRank.messaging.GptSqsProducer;
 import com.runningRank.runningRank.messaging.OcrSqsProducer;
 import com.runningRank.runningRank.recordVerification.domain.RecordVerification;
 import com.runningRank.runningRank.recordVerification.dto.RecordInfo;
@@ -23,41 +24,20 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecordVerificationService {
 
-    private final RecordVerificationLambdaClient lambdaClient;
     private final RecordVerificationRepository recordVerificationRepository;
     private final CertificateProcessingJobRepository certificateProcessingJobRepository;
     private final OcrSqsProducer ocrSqsProducer;
+    private final GptSqsProducer gptSqsProducer;
     private final UserRepository userRepository;
     private final S3Client s3Client;
     private final ObjectMapper objectMapper;
     private static final String RESULT_BUCKET = "univ-marathon-rank";
-
-//    public void createRecordVerification(Long userId, String s3ImageUrl) {
-//        try {
-//            log.info("🚀 기록 검증 시작: {}", s3ImageUrl);
-//
-//            String ocrResponseJson = callOcrLambda(s3ImageUrl);
-//            String ocrResultS3Key = extractOcrResultS3Key(ocrResponseJson);
-//
-//            String gptResponseJson = callGptLambda(ocrResultS3Key);
-//            String formattedResultS3Key = extractFormattedResultS3Key(gptResponseJson);
-//
-//            String formattedText = downloadAndParseFormattedResult(formattedResultS3Key);
-//
-//            saveRecordVerification(userId, s3ImageUrl, formattedText);
-//
-//        } catch (Exception e) {
-//            log.error("🚨 기록 검증 중 오류 발생", e);
-//            throw new RuntimeException("기록 검증 실패", e);
-//        }
-
 
     public UUID createRecordVerification(Long userId, String s3ImageUrl) {
         log.info("🚀 기록 검증 Job 생성 시작: {}", s3ImageUrl);
@@ -75,46 +55,66 @@ public class RecordVerificationService {
         certificateProcessingJobRepository.save(job);
 
         // 2. OCR SQS 큐에 메시지 전송
-        ocrSqsProducer.sendOcrJob(jobId, s3ImageUrl);
+        ocrSqsProducer.sendOcrJob(userId, jobId, s3ImageUrl);
 
         return jobId;
     }
 
-//    private String callOcrLambda(String s3ImageUrl) {
-//        // OCR Lambda 호출
-//        String ocrResponseJson = lambdaClient.callGoogleVisionOCR(s3ImageUrl);
-//        log.info("✅ OCR Lambda 응답 JSON: {}", ocrResponseJson);
-//        return ocrResponseJson;
-//    }
+    public void handleOcrCallback(Long userId, UUID jobId, String s3ImageUrl, String s3TextUrl) {
+        CertificateProcessingJob job = certificateProcessingJobRepository.findById(jobId)
+                .orElseThrow(() -> new IllegalArgumentException("📛 Job이 존재하지 않습니다. jobId = " + jobId));
 
-//    private String extractOcrResultS3Key(String ocrResponseJson) {
-//        try {
-//            // OCR 결과에서 S3 Key 추출
-//            JsonNode ocrJson = objectMapper.readTree(ocrResponseJson); // 기존 인스턴스 사용
-//            String ocrResultS3Key = ocrJson.get("ocrResultS3Key").asText();
-//            log.info("📁 OCR 결과 S3 Key: {}", ocrResultS3Key);
-//            return ocrResultS3Key;
-//        } catch (Exception e) {
-//            log.error("OCR 응답 JSON 파싱 중 오류 발생: {}", ocrResponseJson, e);
-//            throw new RuntimeException("OCR 결과 S3 Key 추출 실패", e);
-//        }
-//    }
+        // 이미 OCR_DONE이거나 FAILED면 무시
+        if (job.getStatus() == JobStatus.OCR_DONE || job.getStatus() == JobStatus.FAILED) {
+            throw new IllegalStateException("⛔ 이미 처리 완료된 Job입니다. 현재 상태: " + job.getStatus());
+        }
 
-//    private String callGptLambda(String ocrResultS3Key) {
-//        // GPT Lambda 호출
-//        String gptResponseJson = lambdaClient.callGptFormattingLambda(ocrResultS3Key);
-//        log.info("✅ GPT Lambda 응답 JSON: {}", gptResponseJson);
-//        return gptResponseJson;
-//    }
+        // 1. OCR 결과 저장
+        job.setOcrResultUrl(s3TextUrl);
 
-    public String downloadAndParseFormattedResult(String formattedResultS3Key) {
+        // 2. 상태 업데이트
+        job.setStatus(JobStatus.OCR_DONE);
+
+        certificateProcessingJobRepository.save(job);
+
+        // 3. GPT Lambda 비동기 호출 (SQS 메시지 전송)
+        gptSqsProducer.sendGptJob(userId,job.getId(), s3ImageUrl, s3TextUrl);
+
+        log.info("✅ OCR 처리 완료 및 GPT 작업 요청 완료: jobId={}, ocrKey={}", jobId, s3TextUrl);
+    }
+
+    public void handleGptCallback(Long userId, UUID jobId,String s3ImageUrl, String gptResultS3Key) {
+        CertificateProcessingJob job = certificateProcessingJobRepository.findById(jobId)
+                .orElseThrow(() -> new IllegalArgumentException("📛 Job이 존재하지 않습니다. jobId = " + jobId));
+
+        // 이미 GPT_DONE이거나 FAILED면 무시
+        if (job.getStatus() == JobStatus.GPT_DONE || job.getStatus() == JobStatus.FAILED) {
+            throw new IllegalStateException("⛔ 이미 처리 완료된 Job입니다. 현재 상태: " + job.getStatus());
+        }
+
+        // 1. GPT 결과 저장
+        job.setGptResultUrl(gptResultS3Key);
+//        String jsonFromGpt = extractFormattedResultS3Key(gptResultS3Key);
+        String formattedText = downloadAndParseFormattedResult(gptResultS3Key);
+
+        saveRecordVerification(userId, s3ImageUrl, formattedText);
+
+        // 2. 상태 업데이트
+        job.setStatus(JobStatus.GPT_DONE);
+
+        certificateProcessingJobRepository.save(job);
+
+        log.info("✅ GPT 처리 완료: jobId={}, formattedKey={}", jobId, formattedText);
+    }
+
+    public String downloadAndParseFormattedResult(String gptResultS3Key) {
         // S3에서 해당 JSON 파일 다운로드 요청 객체 생성
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(RESULT_BUCKET)
-                .key(formattedResultS3Key)
+                .key(gptResultS3Key)
                 .build();
 
-        log.info("⬇️ S3에서 포맷 결과 JSON 다운로드 시작. Key: {}", formattedResultS3Key);
+        log.info("⬇️ S3에서 포맷 결과 JSON 다운로드 시작. Key: {}", gptResultS3Key);
 
         // try-with-resources를 사용하여 S3 응답 스트림을 자동 닫고,
         // 발생 가능한 모든 예외를 하나의 RuntimeException으로 래핑합니다.
@@ -134,7 +134,7 @@ public class RecordVerificationService {
                 // 이 부분은 NullPointerException이 아닌 IllegalArgumentException을 명시적으로 던집니다.
                 // 이는 JSON 구조가 예상과 다를 때 발생하는 논리적 오류이므로, 다른 기술적 예외와 분리하는 것이 좋습니다.
                 String errorMessage = String.format("다운로드된 JSON에 'formattedText' 필드가 없거나 null입니다. Key: %s, JSON: %s",
-                        formattedResultS3Key, parsedJson.toString());
+                        gptResultS3Key, parsedJson.toString());
                 log.error(errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
@@ -145,12 +145,14 @@ public class RecordVerificationService {
             return formattedText;
 
         } catch (Exception e) { // 모든 종류의 예외를 여기서 한 번에 처리합니다.
-            log.error("🚨 S3 JSON 파일 다운로드 및 파싱 중 알 수 없는 오류 발생. Key: {}", formattedResultS3Key, e);
+            log.error("🚨 S3 JSON 파일 다운로드 및 파싱 중 알 수 없는 오류 발생. Key: {}", gptResultS3Key, e);
             throw new RuntimeException("기록 포맷 결과 다운로드 및 파싱 실패: " + e.getMessage(), e);
         }
     }
 
     private String extractFormattedResultS3Key(String gptResponseJson) {
+        log.info("🔍 GPT 응답에서 포맷 결과 파일의 S3 Key 추출 시작");
+        log.info("📦 GPT 응답 JSON: {}", gptResponseJson);
         try {
             // GPT 응답에서 결과 파일의 S3 Key 추출
             JsonNode gptJson = objectMapper.readTree(gptResponseJson);
