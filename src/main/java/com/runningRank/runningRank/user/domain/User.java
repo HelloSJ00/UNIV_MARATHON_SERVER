@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.user.domain;
 
+import com.runningRank.runningRank.auth.dto.KakaoSignupRequest;
 import com.runningRank.runningRank.auth.dto.SignUpRequest;
 import com.runningRank.runningRank.auth.dto.UserUpdateRequest;
 import com.runningRank.runningRank.major.domain.Major;
@@ -128,6 +129,52 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private GraduationStatus graduationStatus;
+
+    // 외부 엔티티는 인자로 받아서 직접 주입
+    public static User create(SignUpRequest request,
+                              String encodedPassword, // 이미 암호화된 비밀번호를 받음
+                              University university,
+                              Major major) {
+        return User.builder()
+                .email(request.getEmail())
+                .password(encodedPassword)
+                .name(request.getName())
+                .birthDate(request.getBirthDate())
+                .gender(Gender.valueOf(request.getGender().toUpperCase()))
+                .university(university)
+                .major(major)
+                .studentNumber(request.getStudentNumber())
+                .profileImageUrl(request.getProfileImage())
+                .role(Role.ROLE_USER) // User 생성 시 기본 역할 설정
+                .isNameVisible(request.isNameVisible())
+                .isStudentNumberVisible(request.isStudentNumberVisible())
+                .isMajorVisible(request.isMajorVisible())
+                .graduationStatus(GraduationStatus.valueOf(request.getGraduationStatus()))
+                .build();
+    }
+
+    // 외부 엔티티는 인자로 받아서 직접 주입
+    public static User kakaoCreate(KakaoSignupRequest request,
+                                   String encodedPassword, // 이미 암호화된 비밀번호를 받음
+                                   University university,
+                                   Major major) {
+        return User.builder()
+                .email(request.getEmail())
+                .password(encodedPassword)
+                .name(request.getName())
+                .birthDate(request.getBirthDate())
+                .gender(Gender.valueOf(request.getGender().toUpperCase()))
+                .university(university)
+                .major(major)
+                .studentNumber(request.getStudentNumber())
+                .profileImageUrl(request.getProfileImage())
+                .role(Role.ROLE_USER) // User 생성 시 기본 역할 설정
+                .isNameVisible(request.isNameVisible())
+                .isStudentNumberVisible(request.isStudentNumberVisible())
+                .isMajorVisible(request.isMajorVisible())
+                .graduationStatus(GraduationStatus.valueOf(request.getGraduationStatus()))
+                .build();
+    }
 
     public void verifyUnivEmail(String univEmail){
         this.universityEmail = univEmail;

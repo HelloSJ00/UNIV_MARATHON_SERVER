@@ -60,3 +60,6 @@ cloud:
       secret-key: ${AWS_SECRET_KEY}
     s3:
       bucket: univ-marathon-rank
+    sqs:
+      ocr-queue-url: https://sqs.ap-northeast-2.amazonaws.com/992382358951/univ-marathon-ocr-processing-queue
+      gpt-queue-url: https://sqs.ap-northeast-2.amazonaws.com/992382358951/univ-mararthon-gpt-processing-queue

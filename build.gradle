@@ -28,6 +28,11 @@ dependencies {
 	// 🔥 반드시 맨 위에 선언해야 아래에 적용돼!
 	implementation platform('software.amazon.awssdk:bom:2.25.14')
 
+	// aws sqs 의존성
+	implementation("software.amazon.awssdk:sqs")
+	implementation("software.amazon.awssdk:regions")
+	implementation("software.amazon.awssdk:auth")
+
 	// jdbc
 	implementation 'mysql:mysql-connector-java:8.0.33' // 최신 버전을 확인하고 사용하세요.
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
