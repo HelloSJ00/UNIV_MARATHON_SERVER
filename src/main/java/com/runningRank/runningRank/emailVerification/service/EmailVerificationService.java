@@ -79,12 +79,7 @@ public class EmailVerificationService {
             }
 
             // 3. 새 인증 객체 생성 및 저장
-            EmailVerification verification = EmailVerification.builder()
-                    .email(univEmail)
-                    .code(code)
-                    .createdAt(LocalDateTime.now())
-                    .status(VerificationStatus.PENDING)
-                    .build();
+            EmailVerification verification = EmailVerification.create(univEmail,code);
 
             emailVerificationRepository.save(verification);
             log.debug("새 인증 객체 저장 완료 - ID: {}", verification.getId());
