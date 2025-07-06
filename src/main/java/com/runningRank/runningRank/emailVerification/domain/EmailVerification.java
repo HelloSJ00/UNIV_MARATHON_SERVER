@@ -43,4 +43,14 @@ public class EmailVerification {
     public boolean isCodeMatched(String inputCode) {
         return this.code.equals(inputCode);
     }
+
+    public static EmailVerification create(String univEmail,String code){
+        return EmailVerification.builder()
+                .email(univEmail)
+                .code(code)
+                .createdAt(LocalDateTime.now())
+                .status(VerificationStatus.PENDING)
+                .build();
+
+    }
 }

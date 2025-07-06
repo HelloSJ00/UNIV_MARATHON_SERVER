@@ -53,21 +53,14 @@ public class KakaoOAuthService {
         University university = universityRepository.findByUniversityName(request.getUniversity())
                 .orElseThrow(() -> new IllegalArgumentException("해당 학교가 존재하지 않습니다."));
 
-        // 3. 유저 생성 및 저장
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .name(request.getName())
-                .birthDate(request.getBirthDate())
-                .gender(Gender.valueOf(request.getGender().toUpperCase()))
-                .university(university)
-                .studentNumber(request.getStudentNumber())
-                .major(major)
-                .profileImageUrl(request.getProfileImage())
-                .role(Role.ROLE_USER)
-                .build();
+        // 3. 비밀번호 암호화 (패스워드 인코더의 책임)
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        userRepository.save(user);
+        // 4. User 객체 생성 (User 엔티티의 정적 팩토리 메서드 활용)
+        User user = User.kakaoCreate(request, encodedPassword, university, major);
+
+        // 5. User 저장
+        User savedUser = userRepository.save(user);
 
         // 4. JWT 발급
         String jwt = jwtProvider.createAccessToken(user.getEmail(), user.getRole());
@@ -80,63 +73,6 @@ public class KakaoOAuthService {
                 .accessToken(jwt)
                 .tokenType("Bearer")
                 .user(userInfo)
-                .build();
-    }
-    /**
-     * 카카오 회원가입
-     * @param request
-     * @return
-     */
-    public UserResponse kakaoSignup(KakaoSignupRequest request){
-        // 이메일 중복 체크
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
-        }
-
-        // 사용자가 전공명을 text로 보내온다고 가정
-        String majorName = request.getMajor();  // 예: "컴퓨터공학과"
-
-        // 전공명으로 Major 엔티티 조회
-        Major major = majorRepository.findByName(majorName)
-                .orElseThrow(() -> new IllegalArgumentException("해당 전공이 존재하지 않습니다."));
-
-        University university = universityRepository.findByUniversityName(request.getUniversity())
-                .orElseThrow(() -> new IllegalArgumentException("해당 학교가 존재하지 않습니다."));
-        // User 객체 생성
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // 비밀번호 암호화
-                .name(request.getName())
-                .birthDate(request.getBirthDate())
-                .gender(Gender.valueOf(request.getGender().toUpperCase())) // 변환
-                .university(university) // 동일하게 처리 가능
-                .major(major)  // 변경된 부분
-                .studentNumber(request.getStudentNumber())
-                .profileImageUrl(request.getProfileImage())
-                .role(Role.ROLE_USER)
-                .isNameVisible(request.isNameVisible())
-                .isStudentNumberVisible(request.isStudentNumberVisible())
-                .isMajorVisible(request.isMajorVisible())
-                .graduationStatus(GraduationStatus.valueOf(request.getGraduationStatus()))
-                .build();
-
-        // 저장
-        User savedUser = userRepository.save(user);
-        return UserResponse.builder()
-                .id(savedUser.getId())
-                .email(savedUser.getEmail())
-                .name(savedUser.getName())
-                .birthDate(request.getBirthDate())
-                .gender(savedUser.getGender())
-                .university(savedUser.getUniversity())
-                .studentNumber(savedUser.getStudentNumber())
-                .major(savedUser.getMajor().getName())
-                .profileImageUrl(savedUser.getProfileImageUrl())
-                .role(savedUser.getRole())
-                .isNameVisible(savedUser.getIsNameVisible())
-                .isStudentNumberVisible(savedUser.getIsStudentNumberVisible())
-                .isMajorVisible(savedUser.getIsMajorVisible())
-                .graduationStatus(String.valueOf(savedUser.getGraduationStatus()))
                 .build();
     }
 

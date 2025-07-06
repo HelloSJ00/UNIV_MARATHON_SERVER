@@ -9,6 +9,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 @Configuration
 public class AwsConfig {
@@ -21,7 +22,7 @@ public class AwsConfig {
         public S3Client localS3Client() {
             return S3Client.builder()
                     .region(Region.AP_NORTHEAST_2)
-                    .credentialsProvider(ProfileCredentialsProvider.create("univ-marathon")) // 로컬에서 사용
+                    .credentialsProvider(ProfileCredentialsProvider.create("univ-marathon"))
                     .build();
         }
 
@@ -40,6 +41,14 @@ public class AwsConfig {
                     .credentialsProvider(ProfileCredentialsProvider.create("univ-marathon"))
                     .build();
         }
+
+        @Bean
+        public SqsClient localSqsClient() {
+            return SqsClient.builder()
+                    .region(Region.AP_NORTHEAST_2)
+                    .credentialsProvider(ProfileCredentialsProvider.create("univ-marathon"))
+                    .build();
+        }
     }
 
     @Configuration
@@ -50,7 +59,7 @@ public class AwsConfig {
         public S3Client prodS3Client() {
             return S3Client.builder()
                     .region(Region.AP_NORTHEAST_2)
-                    .credentialsProvider(DefaultCredentialsProvider.create()) // EC2의 IAM 역할 자동 인식
+                    .credentialsProvider(DefaultCredentialsProvider.create())
                     .build();
         }
 
@@ -69,4 +78,13 @@ public class AwsConfig {
                     .credentialsProvider(DefaultCredentialsProvider.create())
                     .build();
         }
-}}
+
+        @Bean
+        public SqsClient prodSqsClient() {
+            return SqsClient.builder()
+                    .region(Region.AP_NORTHEAST_2)
+                    .credentialsProvider(DefaultCredentialsProvider.create())
+                    .build();
+        }
+    }
+}
