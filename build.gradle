@@ -28,6 +28,11 @@ dependencies {
 	// 🔥 반드시 맨 위에 선언해야 아래에 적용돼!
 	implementation platform('software.amazon.awssdk:bom:2.25.14')
 
+	// 캐싱
+	// Spring Boot Cache Starter
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	// Caffeine Cache Implementation
+	implementation 'com.github.ben-manes.caffeine:caffeine'
 	// aws sqs 의존성
 	implementation("software.amazon.awssdk:sqs")
 	implementation("software.amazon.awssdk:regions")
