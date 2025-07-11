@@ -7,6 +7,7 @@ import com.runningRank.runningRank.runningRecord.dto.RunningRecordResponse;
 import com.runningRank.runningRank.runningRecord.repository.RunningRecordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class RunningRecordService {
      * @param universityName 필터링할 학교 이름 (선택 사항)
      * @param runningType    조회할 마라톤 종목 (예: TEN_KM, HALF 등)
      * @param gender         필터링할 성별 (예: MALE, FEMALE, ALL)
+     * @param graduationStatus 졸업 여부 (예: STUDENT, GRADUATED, ALL)
      * @return 랭킹 리스트와 현재 유저의 개인 기록 포함된 응답 객체
      */
     public RunningRecordResponse getTop100RankingsWithMyRecord(
@@ -39,39 +41,25 @@ public class RunningRecordService {
     ) {
         String uniName = (universityName != null && !universityName.isBlank()) ? universityName : null;
 
-        log.info("[랭킹 조회] 종목: {}, 성별: {}, 학교: {}", runningType, gender, uniName != null ? uniName : "전체");
+        log.info("[랭킹 조회 시작] 종목: {}, 성별: {}, 학교: {}, 졸업여부: {}",
+                runningType, gender, uniName != null ? uniName : "전체", graduationStatus);
 
-        List<RunningRankDto> records = null; // 초기화
-        try {
-            records = runningRecordRepository.getTop100Rankings(
-                    runningType.name(),
-                    uniName,
-                    gender,
-                    graduationStatus
-            );
-            log.info("[쿼리 실행 완료] 랭킹 데이터 조회 성공."); // 이 로그가 찍히는지 확인
-        } catch (Exception e) {
-            log.error("[랭킹 조회 중 오류 발생]", e); // 오류 발생 시 스택 트레이스 출력
-            throw e; // 예외를 다시 던져서 클라이언트에게도 전달
-        }
-
-        // records가 null일 경우를 대비한 방어 로직 추가 (필요시)
-        if (records == null) {
-            return new RunningRecordResponse(Collections.emptyList(), null);
-        }
-
-        AtomicInteger rankCounter = new AtomicInteger(1);
-        records.forEach(record -> record.setRank(rankCounter.getAndIncrement()));
-        List<RunningRankDto> ranking = records;
-
-        log.info("[랭킹 조회] 상위 {}명 조회 완료", ranking.size());
-
-        // 2. 현재 유저의 랭킹 정보 조회
-        MyRankInfo myRank = null; // 초기화
+        List<RunningRankDto> top100Rankings;
+        MyRankInfo myRankInfo = null;
 
         try {
-            // 2. 현재 유저의 랭킹 정보 조회
-            myRank = runningRecordRepository.findMyRankInfo(
+            // 1. 상위 100명 랭킹 조회 (캐싱된 헬퍼 메소드 호출)
+            top100Rankings = getTop100RankingsInternal(uniName, runningType, gender, graduationStatus);
+            log.debug("[상위 100명 랭킹 조회 성공] 데이터 로드 완료. 개수: {}", top100Rankings.size());
+
+            // 랭킹 순위 부여 (캐시된 데이터에도 순위를 다시 부여해야 할 수 있습니다.
+            // 만약 순위가 DB에서 이미 부여되어 온다면 이 부분은 불필요할 수 있습니다.)
+            AtomicInteger rankCounter = new AtomicInteger(1);
+            top100Rankings.forEach(record -> record.setRank(rankCounter.getAndIncrement()));
+
+
+            // 2. 현재 유저의 랭킹 정보 조회 (캐싱하지 않음)
+            myRankInfo = runningRecordRepository.findMyRankInfo(
                     userId,
                     runningType.name(),
                     gender,
@@ -79,28 +67,53 @@ public class RunningRecordService {
                     graduationStatus
             ).orElse(null);
 
-            if (myRank != null) {
-                log.info("[내 랭킹 조회 성공] userId={} → 순위: {}, 기록: {}초", userId, myRank.getRanking(), myRank.getRecordTimeInSeconds());
-                // MyRankInfo의 getter가 getRank()인 것으로 가정합니다.
-                // getRanking()이 아니라 getRank()가 올바른 getter일 겁니다.
+            if (myRankInfo != null) {
+                log.debug("[내 랭킹 조회 성공] userId={} → 순위: {}, 기록: {}초",
+                        userId, myRankInfo.getRanking(), myRankInfo.getRecordTimeInSeconds());
             } else {
-                log.info("[내 랭킹 조회 완료] userId={}는 해당 조건에서 기록이 없습니다.", userId);
+                log.debug("[내 랭킹 조회 완료] userId={}는 해당 조건에서 기록이 없습니다.", userId);
             }
+
         } catch (DataAccessException e) {
-            // Spring Data JPA 관련 예외 (SQL 에러, DB 연결 문제 등)를 잡습니다.
-            log.error("[내 랭킹 조회 중 DB 오류 발생] userId={}: {}", userId, e.getMessage(), e);
-            // 필요에 따라 사용자에게 오류 메시지를 반환하거나, 기본값을 설정할 수 있습니다.
-            // 예: throw new ServiceException("랭킹 정보를 불러오는 데 실패했습니다.", e);
+            log.error("[랭킹 데이터 조회 중 DB 오류 발생] 종목: {}, 성별: {}, 학교: {}. 오류: {}",
+                    runningType, gender, uniName != null ? uniName : "전체", e.getMessage(), e);
+            throw new RuntimeException("랭킹 정보를 불러오는 데 실패했습니다.", e);
         } catch (Exception e) {
-            // 그 외 예상치 못한 모든 예외를 잡습니다.
-            log.error("[내 랭킹 조회 중 알 수 없는 오류 발생] userId={}: {}", userId, e.getMessage(), e);
-            // 필요에 따라 사용자에게 오류 메시지를 반환하거나, 기본값을 설정할 수 있습니다.
+            log.error("[랭킹 데이터 조회 중 예상치 못한 오류 발생] 종목: {}, 성별: {}, 학교: {}. 오류: {}",
+                    runningType, gender, uniName != null ? uniName : "전체", e.getMessage(), e);
+            throw new RuntimeException("알 수 없는 오류로 랭킹 정보를 불러올 수 없습니다.", e);
         }
 
+        log.info("[랭킹 조회 완료] 최종 응답 객체 생성. 상위 {}명, 내 기록 {}존재",
+                top100Rankings.size(), myRankInfo != null ? "정상" : "없음");
 
-        return new RunningRecordResponse(ranking, myRank);
+        return new RunningRecordResponse(top100Rankings, myRankInfo);
     }
 
+    /**
+     * 상위 100명 랭킹을 조회하고 캐싱하는 내부 헬퍼 메소드.
+     * 이 메소드의 결과는 캐시됩니다.
+     */
+    @Cacheable(value = "top100RankingsCache",
+            key = "#uniName + '_' + #runningType.name() + '_' + #gender + '_' + #graduationStatus")
+    public List<RunningRankDto> getTop100RankingsInternal(
+            String uniName,
+            RunningType runningType,
+            String gender,
+            String graduationStatus
+    ) {
+        log.info("[캐시 미스 또는 새로고침] DB에서 상위 100명 랭킹 조회 중... 종목: {}, 성별: {}, 학교: {}, 졸업여부: {}",
+                runningType, gender, uniName != null ? uniName : "전체", graduationStatus);
 
+        // 실제 DB 조회 로직
+        List<RunningRankDto> records = runningRecordRepository.getTop100Rankings(
+                runningType.name(),
+                uniName,
+                gender,
+                graduationStatus
+        );
+        log.debug("[DB 조회 완료] 상위 100명 랭킹 {}개 로드됨.", records.size());
 
+        return records;
+    }
 }

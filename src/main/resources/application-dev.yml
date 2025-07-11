@@ -1,4 +1,12 @@
 spring:
+  cache:
+    cache-names:
+      - top100RankingsCache
+      - allUniversitiesCache
+      - majorsByUniversityCache
+#    caffeine:
+#      spec: "maximumSize=100,expireAfterAccess=1m,refreshAfterWrite=30s"
+
   datasource:
     url: jdbc:mysql://localhost:3306/running_rank_dev
 

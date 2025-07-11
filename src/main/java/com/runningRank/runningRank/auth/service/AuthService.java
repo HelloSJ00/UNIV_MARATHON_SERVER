@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // Slf4j 로거 추가
 import com.runningRank.runningRank.user.domain.User;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -131,6 +132,7 @@ public class AuthService {
      * 회원가입시 등록된 모든 학교 조회
      * @return 모든 학교 이름 리스트
      */
+    @Cacheable("allUniversitiesCache")
     public List<String> getAllUniversityNames() {
         log.info("모든 학교 이름 조회 요청");
         List<String> universityNames = universityRepository.findAll().stream()
@@ -146,6 +148,7 @@ public class AuthService {
      * @param universityName 조회할 대학교 이름
      * @return 해당 대학교의 전공 이름 리스트
      */
+    @Cacheable(value = "majorsByUniversityCache", key = "#universityName") // 캐시 이름과 키 지정 (key는 universityName 매개변수 사용)
     public List<String> getMajorsByUniversityName(String universityName) {
         log.info("특정 학교의 전공 조회 요청: 학교명={}", universityName);
         List<Major> majors = majorRepository.findByUniversityName(universityName);
