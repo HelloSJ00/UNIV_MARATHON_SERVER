@@ -40,9 +40,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. 기존 서비스 중지 (실행 중인 경우 오류 무시)
-            sudo systemctl stop univ-marathon-rank || true
-            
             # 2. S3에서 새로운 JAR 파일 다운로드
             aws s3 cp s3://univ-marathon-rank/builds/app.jar ~/app.jar --region ap-northeast-2
             
@@ -51,7 +48,7 @@ jobs:
             
             # 4. 서비스 재시작
             # 기존에 stop 했으므로 start를 해도 되고, restart 명령어가 더 일반적입니다.
-            sudo systemctl start univ-marathon-rank
+            sudo systemctl restart univ-marathon-rank
             # 또는 sudo systemctl restart univ-marathon-rank (더 권장)
             
             # 5. 서버 재부팅 시 자동 시작 설정 (이미 되어있다면 매번 실행할 필요는 없지만, 안전을 위해 유지 가능)
