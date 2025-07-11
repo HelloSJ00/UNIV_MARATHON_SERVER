@@ -7,7 +7,6 @@ import com.runningRank.runningRank.runningRecord.dto.RunningRecordResponse;
 import com.runningRank.runningRank.runningRecord.repository.RunningRecordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RunningRecordService {
 
     private final RunningRecordRepository runningRecordRepository;
+    private final RunningRecordCacheService runningRecordCacheService;
 
     /**
      * 학교별 종목 기록 랭킹 조회 서비스
@@ -49,7 +49,7 @@ public class RunningRecordService {
 
         try {
             // 1. 상위 100명 랭킹 조회 (캐싱된 헬퍼 메소드 호출)
-            top100Rankings = getTop100RankingsInternal(uniName, runningType, gender, graduationStatus);
+            top100Rankings = runningRecordCacheService.getTop100RankingsInternal(uniName, runningType, gender, graduationStatus);
             log.debug("[상위 100명 랭킹 조회 성공] 데이터 로드 완료. 개수: {}", top100Rankings.size());
 
             // 랭킹 순위 부여 (캐시된 데이터에도 순위를 다시 부여해야 할 수 있습니다.
@@ -88,32 +88,5 @@ public class RunningRecordService {
                 top100Rankings.size(), myRankInfo != null ? "정상" : "없음");
 
         return new RunningRecordResponse(top100Rankings, myRankInfo);
-    }
-
-    /**
-     * 상위 100명 랭킹을 조회하고 캐싱하는 내부 헬퍼 메소드.
-     * 이 메소드의 결과는 캐시됩니다.
-     */
-    @Cacheable(value = "top100RankingsCache",
-            key = "#uniName + '_' + #runningType.name() + '_' + #gender + '_' + #graduationStatus")
-    public List<RunningRankDto> getTop100RankingsInternal(
-            String uniName,
-            RunningType runningType,
-            String gender,
-            String graduationStatus
-    ) {
-        log.info("[캐시 미스 또는 새로고침] DB에서 상위 100명 랭킹 조회 중... 종목: {}, 성별: {}, 학교: {}, 졸업여부: {}",
-                runningType, gender, uniName != null ? uniName : "전체", graduationStatus);
-
-        // 실제 DB 조회 로직
-        List<RunningRankDto> records = runningRecordRepository.getTop100Rankings(
-                runningType.name(),
-                uniName,
-                gender,
-                graduationStatus
-        );
-        log.debug("[DB 조회 완료] 상위 100명 랭킹 {}개 로드됨.", records.size());
-
-        return records;
     }
 }
