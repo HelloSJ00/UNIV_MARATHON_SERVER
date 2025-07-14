@@ -27,6 +27,11 @@ import java.util.List;
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 @Slf4j
+@Table(
+        name = "user",
+        indexes = {
+                @Index(name = "idx_u_univId_gender_graduationStatus", columnList = "university_id, gender, graduationStatus")
+        })
 public class User {
     /**
      *  1. PK
