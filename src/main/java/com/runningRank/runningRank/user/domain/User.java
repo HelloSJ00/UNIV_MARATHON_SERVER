@@ -40,14 +40,25 @@ public class User {
      *  + 3 - 2. 소셜 로그인용 outhProvider
      *  + 3 - 3. 소셜 로그인용 outhId
      *  4. 이름
-     *  5. 나이
+     *  4-1 名 노출 여부
+     *  5. 생년월일
      *  6. 성별
-     *  7. 학교
+     *  7. 학교 (연관관계)
      *  8. 학번
-     *  9. 전공
-     *      따로 테이블로 뻄
+     *  8-1 학번 노출 여부
+     *  9. 전공 (연관관계)
+     *  9-1 전공 노출 여부
      *  10. 프로필 이미지
      *  11. USER_ROLE
+     *  12. 러닝 기록
+     *  13. 학교 이메일
+     *  14. 계정 생성일
+     *  15. 학교 인증 여부
+     *  16. 졸업 상태
+     *  17. strava_id
+     *  17-1 strava acessToken
+     *  17-2 strava refreshToken
+     *  17-3 expiredAt
      */
 
     /**
@@ -76,9 +87,12 @@ public class User {
     // 4
     @Column(nullable = false)
     private String name;
+
+    // 4-1 이름 노출 여부
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isNameVisible = true;
 
+    // 5
     @Column(nullable = false)
     private LocalDate birthDate;  // ex) 2000-05-14
 
@@ -96,12 +110,15 @@ public class User {
 
     // 8
     private String studentNumber;
+    // 8-1 학번 노출 여부
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isStudentNumberVisible = true;
+
     // 9
     @ManyToOne
     @JoinColumn(name = "major_id")
     private Major major;
+    // 9 -1 학과 노출 여부
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isMajorVisible = true;
 
@@ -116,24 +133,38 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RunningRecord> runningRecords = new ArrayList<>();
 
-    // 13. 랭킹 뱃지 1:N = 유저 : 랭킹 뱃지
-
-    // 14. 학생 이메일 검증을 위한 필드
-
+    // 13. 학생 이메일 검증을 위한 필드
     // 학교 이메일 인증 정보
     @Column(nullable = true, unique = true)
     private String universityEmail;
 
-    // 16. 계정 생성일
+    // 14. 계정 생성일
     @Column(nullable = true)
     @CreatedDate
     private LocalDateTime createdAt;
 
+    // 15. 학교 인증 여부
     @Column(nullable = false)
     private boolean isUniversityVerified;
 
+    // 16. 졸업 상태
     @Enumerated(EnumType.STRING)
     private GraduationStatus graduationStatus;
+
+    // 17. strava_id
+    @Column(unique = true) // Strava ID는 고유해야 함
+    private String stravaId;
+
+    // 17-1 strava acessToken
+    @Column(length = 255) // Access Token은 길이가 길 수 있음
+    private String stravaAccessToken;
+
+    // 17-2 strava refreshToken
+    @Column(length = 255) // Refresh Token은 길이가 길 수 있음
+    private String stravaRefreshToken;
+
+    // 17-3 expiredAt
+    private LocalDateTime expiredAt;
 
     // 외부 엔티티는 인자로 받아서 직접 주입
     public static User create(SignUpRequest request,
@@ -276,5 +307,9 @@ public class User {
         }
 
         log.info("Finished updateInfo for user ID: {}", this.id);
+    }
+
+    public void setStravaId(String stravaId) {
+        this.stravaId = stravaId;
     }
 }
