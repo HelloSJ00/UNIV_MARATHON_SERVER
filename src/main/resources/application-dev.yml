@@ -43,6 +43,7 @@ jwt:
 
 logging:
   level:
+#    root: DEBUG
     org.springframework.cache: TRACE
 
 

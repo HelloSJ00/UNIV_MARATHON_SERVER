@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/auth/oauth/kakao",
                                 "/api/auth/strava/callback",
+                                "/api/mileage/callback-mileage",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/major/**",

@@ -60,6 +60,7 @@ public class StravaAuthController {
             return new RedirectView("http://localhost:3000/mypage?strava=fail");
         }
     }
+
     /**
      * 3. 프론트엔드가 Strava 콜백에서 받은 code와 state를 가지고 호출하는 API.
      * 이 엔드포인트에서 최종적인 토큰 교환 및 사용자 정보 업데이트가 이루어집니다.

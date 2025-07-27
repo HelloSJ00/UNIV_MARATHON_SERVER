@@ -315,4 +315,8 @@ public class User {
         this.stravaRefreshToken = newRefreshToken;
         this.stravaAccessTokenExpiresAt = newExpiresAt;
     }
+
+    public boolean isAccessTokenExpired(){
+        return this.stravaAccessTokenExpiresAt.isBefore(LocalDateTime.now());
+    }
 }
