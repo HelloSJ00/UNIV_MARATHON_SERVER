@@ -40,11 +40,19 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # 2. S3에서 새로운 JAR 파일 다운로드
             aws s3 cp s3://univ-marathon-rank/builds/app.jar ~/app.jar --region ap-northeast-2
+            
+            # 3. systemd 데몬 재로드 (서비스 파일 변경이 없다면 꼭 필요하진 않지만, 안전을 위해 실행)
             sudo systemctl daemon-reload
             
-            sudo systemctl start univ-marathon-rank
-            sudo systemctl enable univ-marathon-rank  # 서버 재부팅 시 자동 시작
+            # 4. 서비스 재시작
+            # 기존에 stop 했으므로 start를 해도 되고, restart 명령어가 더 일반적입니다.
+            sudo systemctl restart univ-marathon-rank
+            # 또는 sudo systemctl restart univ-marathon-rank (더 권장)
             
-            sudo systemctl status univ-marathon-rank  # 상태 확인
-
+            # 5. 서버 재부팅 시 자동 시작 설정 (이미 되어있다면 매번 실행할 필요는 없지만, 안전을 위해 유지 가능)
+            sudo systemctl enable univ-marathon-rank
+            
+            # 6. 서비스 상태 확인
+            sudo systemctl status univ-marathon-rank --no-pager

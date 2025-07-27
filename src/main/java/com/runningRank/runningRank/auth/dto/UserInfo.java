@@ -32,6 +32,7 @@ public class UserInfo {
     private boolean isStudentNumberVisible;
     private boolean isMajorVisible;
     private String graduationStatus;
+    private boolean isStravaConnected;
 
     private Map<String, RunningRecordDto> runningRecords;
 
@@ -53,7 +54,7 @@ public class UserInfo {
                 .birthDate(user.getBirthDate())
                 .age(user.getAge())
                 .studentNumber(user.getStudentNumber())
-                .gender(java.lang.String.valueOf(user.getGender()))
+                .gender(String.valueOf(user.getGender()))
                 .universityName(user.getUniversity().getUniversityName()) // University 엔티티에 getName()이 있다고 가정
                 .majorName(user.getMajor().getName())           // Major 엔티티에 getName()이 있다고 가정
                 .profileImageUrl(user.getProfileImageUrl())
@@ -64,8 +65,9 @@ public class UserInfo {
                 .isNameVisible(user.getIsNameVisible())
                 .isStudentNumberVisible(user.getIsStudentNumberVisible())
                 .isMajorVisible(user.getIsMajorVisible())
-                .graduationStatus(java.lang.String.valueOf(user.getGraduationStatus()))
+                .graduationStatus(String.valueOf(user.getGraduationStatus()))
                 .runningRecords(runningMap)
+                .isStravaConnected(user.isStravaConnected())
                 .build();
     }
 }
