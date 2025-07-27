@@ -67,6 +67,6 @@ cloud:
 strava:
   client-id: 169874
   client-secret: d3165980b6d582391268524a560b60649ca19c09
-  redirect-uri: http://localhost:8080/auth/strava/callback
+  redirect-uri: http://localhost:8080/api/auth/strava/callback
   state-secret-key: your-very-long-and-secure-secret-key-for-strava-state-jwt # 아무 문자열이나 넣지 말고, 길고 복잡하며 외부에 노출되지 않아야 합니다. (최소 32바이트 이상 권장)
   state-expiration-millis: 300000 # state 토큰 유효 시간 (5분 = 300초 = 300000밀리초). 짧게 설정하는 것이 보안에 좋습니다.

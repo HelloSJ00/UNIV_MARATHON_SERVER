@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.mileage.service;
 
+import com.runningRank.runningRank.messaging.MileageSqsProducer;
 import com.runningRank.runningRank.mileage.domain.Mileage;
 import com.runningRank.runningRank.mileage.repository.MileageRepository;
 import com.runningRank.runningRank.user.domain.User;
@@ -17,6 +18,8 @@ public class MileageService {
 
     private final MileageRepository mileageRepository;
     private final UserRepository userRepository;
+    private final MileageSqsProducer mileageSqsProducer;
+
 
     // 람다가 계산한 월별 마일리지 정보를 수신하여 저장/업데이트
     @Transactional
@@ -24,7 +27,9 @@ public class MileageService {
             Long userId,
             int year,
             int month,
-            double totalDistanceKm
+            int totalActivityCount,
+            double totalDistanceKm,
+            int avgFaceTime
     ) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
@@ -37,10 +42,10 @@ public class MileageService {
         Mileage mileage;
         if (existingMileage.isPresent()) {
             mileage = existingMileage.get();
-            mileage.updateTotalDistanceKm(totalDistanceKm); // 람다에서 계산된 최종값으로 덮어쓰기
+            mileage.updateTotalDistanceKm(totalActivityCount,totalDistanceKm,avgFaceTime); // 람다에서 계산된 최종값으로 덮어쓰기
             System.out.println("기존 마일리지 업데이트: User=" + userId + ", " + year + "-" + month + " -> " + totalDistanceKm + "km");
         } else {
-            mileage = Mileage.of(user,year,month,totalDistanceKm);
+            mileage = Mileage.of(user,year,month,totalActivityCount,totalDistanceKm,avgFaceTime);
             System.out.println("새 마일리지 생성: User=" + userId + ", " + year + "-" + month + " -> " + totalDistanceKm + "km");
         }
         mileageRepository.save(mileage);

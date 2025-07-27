@@ -12,8 +12,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/auth/strava")
+@RequestMapping("/api/auth/strava")
 @RequiredArgsConstructor
 public class StravaAuthController {
 
@@ -28,11 +30,36 @@ public class StravaAuthController {
      * @return Strava 인증 페이지로의 리다이렉션 뷰
      */
     @GetMapping("/connect")
-    public RedirectView stravaConnect(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long currentUserId = userDetails.getId(); // 실제 로그인된 사용자의 고유 ID로 대체하세요.
-        return new RedirectView(stravaAuthService.generateStravaAuthUrl(currentUserId));
+    public ResponseEntity<Map<String, String>> stravaConnect(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long currentUserId = userDetails.getId();
+        String redirectUrl = stravaAuthService.generateStravaAuthUrl(currentUserId);
+
+        return ResponseEntity.ok(Map.of("redirectUrl", redirectUrl));
     }
 
+
+    /**
+     * 콜백
+     * @param code
+     * @param state
+     * @return
+     */
+    @GetMapping("/callback")
+    public RedirectView stravaCallback(
+            @RequestParam("code") String code,
+            @RequestParam("state") String state
+    ) {
+        try {
+            // code와 state를 사용해서 토큰 교환 및 DB 업데이트
+            stravaAuthService.exchangeCodeForTokens(code, state);
+
+            // 성공 시 프론트엔드 마이페이지로 리다이렉트
+            return new RedirectView("http://localhost:3000/mypage?strava=success");
+        } catch (Exception e) {
+            // 실패 시 에러 페이지 또는 fallback 페이지로 리다이렉트
+            return new RedirectView("http://localhost:3000/mypage?strava=fail");
+        }
+    }
     /**
      * 3. 프론트엔드가 Strava 콜백에서 받은 code와 state를 가지고 호출하는 API.
      * 이 엔드포인트에서 최종적인 토큰 교환 및 사용자 정보 업데이트가 이루어집니다.

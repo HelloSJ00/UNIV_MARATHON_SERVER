@@ -55,10 +55,10 @@ public class User {
      *  14. 계정 생성일
      *  15. 학교 인증 여부
      *  16. 졸업 상태
-     *  17. strava_id
      *  17-1 strava acessToken
      *  17-2 strava refreshToken
      *  17-3 expiredAt
+     *  17-4 isStravaConnected
      */
 
     /**
@@ -151,10 +151,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private GraduationStatus graduationStatus;
 
-    // 17. strava_id
-    @Column(unique = true) // Strava ID는 고유해야 함
-    private String stravaId;
-
     // 17-1 strava acessToken
     @Column(length = 255) // Access Token은 길이가 길 수 있음
     private String stravaAccessToken;
@@ -165,6 +161,10 @@ public class User {
 
     // 17-3 expiredAt
     private LocalDateTime stravaAccessTokenExpiresAt;
+
+    // 17-4 isStravaAuthenticated. 학교 인증 여부
+    @Column(nullable = false)
+    private boolean isStravaConnected;
 
     // 외부 엔티티는 인자로 받아서 직접 주입
     public static User create(SignUpRequest request,
@@ -309,11 +309,8 @@ public class User {
         log.info("Finished updateInfo for user ID: {}", this.id);
     }
 
-    public void setStravaId(String stravaId) {
-        this.stravaId = stravaId;
-    }
-
     public void updateStravaTokens(String newAccessToken, String newRefreshToken, LocalDateTime newExpiresAt) {
+        this.isStravaConnected = true;
         this.stravaAccessToken = newAccessToken;
         this.stravaRefreshToken = newRefreshToken;
         this.stravaAccessTokenExpiresAt = newExpiresAt;
