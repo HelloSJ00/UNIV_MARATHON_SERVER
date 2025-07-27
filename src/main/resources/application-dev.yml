@@ -1,4 +1,12 @@
 spring:
+  cache:
+    cache-names:
+      - top100RankingsCache
+      - allUniversitiesCache
+      - majorsByUniversityCache
+#    caffeine:
+#      spec: "maximumSize=100,expireAfterAccess=1m,refreshAfterWrite=30s"
+
   datasource:
     url: jdbc:mysql://localhost:3306/running_rank_dev
 
@@ -35,8 +43,9 @@ jwt:
 
 logging:
   level:
-    root: info
-    com.runningRank: debug
+#    root: DEBUG
+    org.springframework.cache: TRACE
+
 
 kakao:
   client-id: 30fd97fda368d489fb9ab92080ab4b3d
@@ -54,3 +63,11 @@ cloud:
     sqs:
       ocr-queue-url: https://sqs.ap-northeast-2.amazonaws.com/992382358951/univ-marathon-ocr-processing-queue
       gpt-queue-url: https://sqs.ap-northeast-2.amazonaws.com/992382358951/univ-mararthon-gpt-processing-queue
+      mileage-queue-url: https://sqs.ap-northeast-2.amazonaws.com/992382358951/univ-marathon-get-user-mileage-queue
+
+strava:
+  client-id: 169874
+  client-secret: d3165980b6d582391268524a560b60649ca19c09
+  redirect-uri: http://localhost:8080/api/auth/strava/callback
+  state-secret-key: your-very-long-and-secure-secret-key-for-strava-state-jwt # 아무 문자열이나 넣지 말고, 길고 복잡하며 외부에 노출되지 않아야 합니다. (최소 32바이트 이상 권장)
+  state-expiration-millis: 300000 # state 토큰 유효 시간 (5분 = 300초 = 300000밀리초). 짧게 설정하는 것이 보안에 좋습니다.

@@ -18,7 +18,10 @@ import java.time.LocalDateTime;
 @Builder
 @Table(
         name = "running_record",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "runningType"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "runningType"}),
+        indexes = {
+                @Index(name = "idx_rr_type_time_name", columnList = "runningType, recordTimeInSeconds, marathonName")
+        }
 )
 public class RunningRecord {
 

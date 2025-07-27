@@ -2,6 +2,7 @@ package com.runningRank.runningRank.admin.service;
 
 import com.runningRank.runningRank.admin.dto.RecordVerificationInfo;
 import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
+import com.runningRank.runningRank.global.config.CacheInvalidationScheduler;
 import com.runningRank.runningRank.recordVerification.domain.RecordVerification;
 import com.runningRank.runningRank.recordVerification.repository.RecordVerificationRepository;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
@@ -12,6 +13,7 @@ import com.runningRank.runningRank.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ public class AdminService {
 
     private final RecordVerificationRepository recordVerificationRepository;
     private final UserRepository userRepository;
+    private final CacheInvalidationScheduler cacheInvalidationScheduler; // 🌟 스케줄러 주입
+
     private final RunningRecordRepository runningRecordRepository;
 
     /**
@@ -53,12 +57,7 @@ public class AdminService {
      * @param recordVerificationId
      * @return
      */
-    /**
-     * 검토중인 기록 승인
-     * @param userId
-     * @param recordVerificationId
-     * @return
-     */
+    @CacheEvict(value = "top100RankingsCache", allEntries = true) // 🌟 모든 랭킹 캐시를 무효화
     @Transactional
     public boolean confirmRecordVerification(Long userId, Long recordVerificationId) {
         try {
@@ -110,6 +109,9 @@ public class AdminService {
             // 5. 검증 상태 변경
             recordVerification.changeStatus(VerificationStatus.VERIFIED);
             log.info("RecordVerification 상태 VERIFIED로 변경: id={}", recordVerificationId);
+
+            // 🌟 캐시 무효화를 스케줄러에 요청
+            cacheInvalidationScheduler.requestCacheInvalidation("top100RankingsCache");
 
             return true;
 
