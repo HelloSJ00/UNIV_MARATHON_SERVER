@@ -13,6 +13,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     boolean existsByEmail(String email);
     Optional<User> findByEmail(String email);
     Optional<User> findByOauthIdAndOauthProvider(String oauthId, String oauthProvider);
+    Optional<User> findByStravaId(String stravaId);
 
     @Query(
             value = "SELECT user_id AS userId, " +

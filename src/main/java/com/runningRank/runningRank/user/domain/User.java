@@ -164,7 +164,7 @@ public class User {
     private String stravaRefreshToken;
 
     // 17-3 expiredAt
-    private LocalDateTime expiredAt;
+    private LocalDateTime stravaAccessTokenExpiresAt;
 
     // 외부 엔티티는 인자로 받아서 직접 주입
     public static User create(SignUpRequest request,
@@ -311,5 +311,11 @@ public class User {
 
     public void setStravaId(String stravaId) {
         this.stravaId = stravaId;
+    }
+
+    public void updateStravaTokens(String newAccessToken, String newRefreshToken, LocalDateTime newExpiresAt) {
+        this.stravaAccessToken = newAccessToken;
+        this.stravaRefreshToken = newRefreshToken;
+        this.stravaAccessTokenExpiresAt = newExpiresAt;
     }
 }
