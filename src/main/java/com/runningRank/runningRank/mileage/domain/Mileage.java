@@ -34,7 +34,7 @@ public class Mileage {
 
     private double totalDistanceKm;
 
-    private int avgFaceTime;
+    private int avgPaceTime;
 
     private LocalDateTime lastUpdatedAt;
 
@@ -42,22 +42,22 @@ public class Mileage {
     // 엔티티 내부에 빌더 패턴을 활용한 정적 팩토리 메서드 추가
     // -------------------------------------------------------------
     public static Mileage of(User user, int year, int month,int totalActivityCount, double totalDistanceKm
-    , int avgFaceTime) {
+    , int avgPaceTime) {
         return Mileage.builder()
                 .user(user)
                 .year(year)
                 .month(month)
                 .totalActivityCount(totalActivityCount)
                 .totalDistanceKm(totalDistanceKm)
-                .avgFaceTime(avgFaceTime)
+                .avgPaceTime(avgPaceTime)
                 .lastUpdatedAt(LocalDateTime.now()) // 객체 생성 시 현재 시간으로 설정
                 .build();
     }
 
-    public void updateTotalDistanceKm(int totalActivityCount,double totalDistanceKm, int avgFaceTime) {
+    public void updateTotalDistanceKm(int totalActivityCount,double totalDistanceKm, int avgPaceTime) {
         this.totalDistanceKm = totalDistanceKm;
         this.totalActivityCount = totalActivityCount;
-        this.avgFaceTime = avgFaceTime;
+        this.avgPaceTime = avgPaceTime;
         this.lastUpdatedAt = LocalDateTime.now();
     }
 }
