@@ -15,6 +15,7 @@ import java.util.Optional;
 
 public interface MileageRepository extends JpaRepository<Mileage, Long> {
     Optional<Mileage> findByUserAndYearAndMonth(User user, int year, int month);
+    List<Mileage> findAllByYearAndMonth(int year, int month);
 
     @Query(value =/* language=SQL */
             """

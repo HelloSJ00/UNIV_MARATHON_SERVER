@@ -4,6 +4,8 @@ import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.jwt.JwtProvider;
 import com.runningRank.runningRank.major.domain.Major;
 import com.runningRank.runningRank.major.repository.MajorRepository;
+import com.runningRank.runningRank.mileage.domain.Mileage;
+import com.runningRank.runningRank.mileage.repository.MileageRepository;
 import com.runningRank.runningRank.university.domain.University;
 import com.runningRank.runningRank.university.repository.UniversityRepository;
 import com.runningRank.runningRank.user.repository.UserRepository;
@@ -16,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -24,6 +27,7 @@ import java.util.List;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final MileageRepository mileageRepository;
     private final MajorRepository majorRepository;
     private final PasswordEncoder passwordEncoder;
     private final UniversityRepository universityRepository;
@@ -114,8 +118,9 @@ public class AuthService {
         String token = jwtProvider.createAccessToken(user.getEmail(), user.getRole());
         log.debug("JWT 토큰 생성 완료");
 
+        Mileage mileage = mileageRepository.findByUserAndYearAndMonth(user, LocalDate.now().getYear(), LocalDate.now().getMonthValue()).get();
         // 4. 유저 정보 DTO 생성 (러닝기록 포함해서 정리)
-        UserInfo userInfo = UserInfo.from(user);
+        UserInfo userInfo = UserInfo.from(user,mileage);
         log.debug("UserInfo DTO 변환 완료");
 
         // 5. 통합 응답

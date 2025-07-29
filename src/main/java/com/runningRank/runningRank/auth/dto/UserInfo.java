@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.auth.dto;
 
+import com.runningRank.runningRank.mileage.domain.Mileage;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.user.domain.Role;
 import com.runningRank.runningRank.user.domain.User;
@@ -34,9 +35,13 @@ public class UserInfo {
     private String graduationStatus;
     private boolean isStravaConnected;
 
+    private double totalDistanceKm;
+    private int totalActivityCount;
+    private int avgPaceTime;
+
     private Map<String, RunningRecordDto> runningRecords;
 
-    public static UserInfo from(User user) {
+    public static UserInfo from(User user, Mileage mileage) {
         Map<String, RunningRecordDto> runningMap = new HashMap<>();
 
         for (String type : List.of("TEN_KM", "HALF", "FULL")) {
@@ -68,6 +73,9 @@ public class UserInfo {
                 .graduationStatus(String.valueOf(user.getGraduationStatus()))
                 .runningRecords(runningMap)
                 .isStravaConnected(user.isStravaConnected())
+                .totalDistanceKm(mileage.getTotalDistanceKm())
+                .totalActivityCount(mileage.getTotalActivityCount())
+                .avgPaceTime(mileage.getAvgPaceTime())
                 .build();
     }
 }
