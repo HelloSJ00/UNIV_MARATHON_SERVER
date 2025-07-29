@@ -31,6 +31,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID; // UUID 추가
 
 @Service
@@ -87,8 +88,8 @@ public class UserService {
 
         userRepository.save(user);
 
-        Mileage mileage = mileageRepository.findByUserAndYearAndMonth(user, LocalDate.now().getYear(), LocalDate.now().getMonthValue()).get();
-        // 4. DTO 응답 변환 및 반환
+        Optional<Mileage> optionalMileage = mileageRepository.findByUserAndYearAndMonth(user, LocalDate.now().getYear(), LocalDate.now().getMonthValue());
+        Mileage mileage = optionalMileage.orElse(null);            // 4. DTO 응답 변환 및 반환
         return UserInfo.from(user,mileage);
     }
     /**

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -118,8 +119,8 @@ public class AuthService {
         String token = jwtProvider.createAccessToken(user.getEmail(), user.getRole());
         log.debug("JWT 토큰 생성 완료");
 
-        Mileage mileage = mileageRepository.findByUserAndYearAndMonth(user, LocalDate.now().getYear(), LocalDate.now().getMonthValue()).get();
-        // 4. 유저 정보 DTO 생성 (러닝기록 포함해서 정리)
+        Optional<Mileage> optionalMileage = mileageRepository.findByUserAndYearAndMonth(user, LocalDate.now().getYear(), LocalDate.now().getMonthValue());
+        Mileage mileage = optionalMileage.orElse(null);        // 4. 유저 정보 DTO 생성 (러닝기록 포함해서 정리)
         UserInfo userInfo = UserInfo.from(user,mileage);
         log.debug("UserInfo DTO 변환 완료");
 
