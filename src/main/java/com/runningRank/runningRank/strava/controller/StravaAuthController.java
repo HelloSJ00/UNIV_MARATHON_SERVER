@@ -54,10 +54,10 @@ public class StravaAuthController {
             stravaAuthService.exchangeCodeForTokens(code, state);
 
             // 성공 시 프론트엔드 마이페이지로 리다이렉트
-            return new RedirectView("http://localhost:3000/mypage?strava=success");
+            return new RedirectView("https://univmarathon.com/home?strava=success");
         } catch (Exception e) {
             // 실패 시 에러 페이지 또는 fallback 페이지로 리다이렉트
-            return new RedirectView("http://localhost:3000/mypage?strava=fail");
+            return new RedirectView("https://univmarathon.com/home?strava=fail");
         }
     }
 
