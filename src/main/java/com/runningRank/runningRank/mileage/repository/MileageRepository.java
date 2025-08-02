@@ -15,6 +15,7 @@ import java.util.Optional;
 
 public interface MileageRepository extends JpaRepository<Mileage, Long> {
     Optional<Mileage> findByUserAndYearAndMonth(User user, int year, int month);
+    List<Mileage> findAllByYearAndMonth(int year, int month);
 
     @Query(value =/* language=SQL */
             """
@@ -42,7 +43,7 @@ public interface MileageRepository extends JpaRepository<Mileage, Long> {
               AND (:universityName IS NULL OR uni.university_name = :universityName)
               AND (:gender = 'ALL' OR u.gender = :gender)
               AND (:graduationStatus = 'ALL' OR u.graduation_status = :graduationStatus)
-            ORDER BY m.total_distance_km ASC
+            ORDER BY m.total_distance_km DESC
             LIMIT 100
             """, nativeQuery = true)
     List<MileageUnivRankDto> getTop100MileageRankings(

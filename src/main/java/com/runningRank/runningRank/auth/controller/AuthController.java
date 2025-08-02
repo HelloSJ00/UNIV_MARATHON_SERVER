@@ -4,7 +4,7 @@ package com.runningRank.runningRank.auth.controller;
 import com.runningRank.runningRank.auth.dto.*;
 import com.runningRank.runningRank.auth.model.CustomUserDetails;
 import com.runningRank.runningRank.auth.service.AuthService;
-import com.runningRank.runningRank.auth.service.KakaoOAuthService;
+
 import com.runningRank.runningRank.global.dto.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -23,7 +23,6 @@ import java.util.List;
 public class AuthController {
 
     private final AuthService authService;
-    private final KakaoOAuthService kakaoOAuthService;
 
     @GetMapping("/check-email")
     public ResponseEntity<ApiResponse<Boolean>> checkEmailDuplicate(
@@ -59,18 +58,18 @@ public class AuthController {
     /**
      * 카카오 로그인
      */
-    @PostMapping("/oauth/kakao")
-    public ResponseEntity<KakaoLoginResponse> kakaoLogin(@RequestBody KakaoLoginRequest request) {
-        return ResponseEntity.ok(kakaoOAuthService.kakaoLogin(request.getCode()));
-    }
-
-    /**
-     * 카카오 회원가입
-     */
-    @PostMapping("/oauth/kakao/signup")
-    public ResponseEntity<LoginResponse> kakaoLogin(@RequestBody KakaoSignupRequest request) {
-        return ResponseEntity.ok(kakaoOAuthService.kakaoSignUp(request));
-    }
+//    @PostMapping("/oauth/kakao")
+//    public ResponseEntity<KakaoLoginResponse> kakaoLogin(@RequestBody KakaoLoginRequest request) {
+//        return ResponseEntity.ok(kakaoOAuthService.kakaoLogin(request.getCode()));
+//    }
+//
+//    /**
+//     * 카카오 회원가입
+//     */
+//    @PostMapping("/oauth/kakao/signup")
+//    public ResponseEntity<LoginResponse> kakaoLogin(@RequestBody KakaoSignupRequest request) {
+//        return ResponseEntity.ok(kakaoOAuthService.kakaoSignUp(request));
+//    }
 
     /**
      * 회원가입시 모든 학교 조회

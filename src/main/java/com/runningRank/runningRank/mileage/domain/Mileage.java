@@ -2,13 +2,11 @@ package com.runningRank.runningRank.mileage.domain;
 
 import com.runningRank.runningRank.user.domain.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Entity
 @Table(name = "mileage", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"user_id", "year", "month"}) // 복합 유니크 키

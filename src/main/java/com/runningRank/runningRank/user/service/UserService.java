@@ -7,6 +7,8 @@ import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
 import com.runningRank.runningRank.emailVerification.repository.EmailVerificationRepository;
 import com.runningRank.runningRank.major.domain.Major;
 import com.runningRank.runningRank.major.repository.MajorRepository;
+import com.runningRank.runningRank.mileage.domain.Mileage;
+import com.runningRank.runningRank.mileage.repository.MileageRepository;
 import com.runningRank.runningRank.university.domain.University;
 import com.runningRank.runningRank.university.repository.UniversityRepository;
 import com.runningRank.runningRank.user.domain.User;
@@ -27,7 +29,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.net.URI;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID; // UUID 추가
 
 @Service
@@ -38,6 +42,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UniversityRepository universityRepository;
     private final MajorRepository majorRepository;
+    private final MileageRepository mileageRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationRepository emailVerificationRepository;
     private final S3Presigner s3Presigner; // S3Presigner 빈은 별도의 @Configuration에서 정의되어야 합니다.
@@ -81,8 +86,11 @@ public class UserService {
         // 3. 유저 정보 업데이트
         user.updateInfo(request, newUniversity, newMajor);
 
-        // 4. DTO 응답 변환 및 반환
-        return UserInfo.from(user);
+        userRepository.save(user);
+
+        Optional<Mileage> optionalMileage = mileageRepository.findByUserAndYearAndMonth(user, LocalDate.now().getYear(), LocalDate.now().getMonthValue());
+        Mileage mileage = optionalMileage.orElse(null);            // 4. DTO 응답 변환 및 반환
+        return UserInfo.from(user,mileage);
     }
     /**
      * 클라이언트가 S3에 직접 파일을 업로드할 수 있도록 Presigned URL을 생성합니다.

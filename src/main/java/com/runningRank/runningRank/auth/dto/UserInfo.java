@@ -1,5 +1,6 @@
 package com.runningRank.runningRank.auth.dto;
 
+import com.runningRank.runningRank.mileage.domain.Mileage;
 import com.runningRank.runningRank.runningRecord.domain.RunningRecord;
 import com.runningRank.runningRank.user.domain.Role;
 import com.runningRank.runningRank.user.domain.User;
@@ -34,9 +35,13 @@ public class UserInfo {
     private String graduationStatus;
     private boolean isStravaConnected;
 
+    private double totalDistanceKm;
+    private int totalActivityCount;
+    private int avgPaceTime;
+
     private Map<String, RunningRecordDto> runningRecords;
 
-    public static UserInfo from(User user) {
+    public static UserInfo from(User user, Mileage mileage) {
         Map<String, RunningRecordDto> runningMap = new HashMap<>();
 
         for (String type : List.of("TEN_KM", "HALF", "FULL")) {
@@ -48,6 +53,19 @@ public class UserInfo {
                             () -> runningMap.put(type, null)
                     );
         }
+
+        // mileage가 null일 경우를 대비한 변수 초기화
+        double totalDistanceKm = 0.0;
+        int totalActivityCount = 0;
+        int avgPaceTime = 0;
+
+        // mileage 객체가 null이 아닐 때만 값을 가져옴
+        if (mileage != null) {
+            totalDistanceKm = mileage.getTotalDistanceKm();
+            totalActivityCount = mileage.getTotalActivityCount();
+            avgPaceTime = mileage.getAvgPaceTime();
+        }
+
         return UserInfo.builder()
                 .email(user.getEmail())
                 .name(user.getName())
@@ -55,8 +73,8 @@ public class UserInfo {
                 .age(user.getAge())
                 .studentNumber(user.getStudentNumber())
                 .gender(String.valueOf(user.getGender()))
-                .universityName(user.getUniversity().getUniversityName()) // University 엔티티에 getName()이 있다고 가정
-                .majorName(user.getMajor().getName())           // Major 엔티티에 getName()이 있다고 가정
+                .universityName(user.getUniversity().getUniversityName())
+                .majorName(user.getMajor().getName())
                 .profileImageUrl(user.getProfileImageUrl())
                 .role(user.getRole())
                 .createdAt(user.getCreatedAt())
@@ -68,6 +86,9 @@ public class UserInfo {
                 .graduationStatus(String.valueOf(user.getGraduationStatus()))
                 .runningRecords(runningMap)
                 .isStravaConnected(user.isStravaConnected())
+                .totalDistanceKm(totalDistanceKm) // null 체크 후 할당된 값 사용
+                .totalActivityCount(totalActivityCount) // null 체크 후 할당된 값 사용
+                .avgPaceTime(avgPaceTime) // null 체크 후 할당된 값 사용
                 .build();
     }
 }
