@@ -2,6 +2,7 @@ package com.runningRank.runningRank.recordUploadLog.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.YearMonth;
@@ -20,6 +21,7 @@ public class RecordUploadLog {
 
     private String uploadTime;
 
+    @Getter
     private int callCount;
 
     // 생성
@@ -33,4 +35,5 @@ public class RecordUploadLog {
     public void increaseCallCount() {
         this.callCount++;
     }
+
 }

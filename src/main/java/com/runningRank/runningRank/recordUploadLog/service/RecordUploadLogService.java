@@ -21,4 +21,10 @@ public class RecordUploadLogService {
         recordUploadLogRepository.save(recordUploadLog);
         return true;
     }
+
+    public boolean checkUserCanCall(Long userId) {
+        return recordUploadLogRepository.findByUserId(userId)
+                .map(log -> log.getCallCount() < 3)
+                .orElse(true);  // 없으면 처음 호출하는 거니까 true
+    }
 }

@@ -1,12 +1,15 @@
 package com.runningRank.runningRank.global.exception;
 
 import com.runningRank.runningRank.global.dto.ApiResponse;
+import com.runningRank.runningRank.recordVerification.exception.CallQuotaExceededException;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.HttpHeaders; // HttpHeaders 임포트 추가
+
+import java.util.Map;
 
 /**
  * 스웨거 오류로 @Hidden 어노테이션 붙혀놈
@@ -39,4 +42,15 @@ public class GlobalExceptionHandler {
                         .data(null)
                         .build());
     }
+
+    @ExceptionHandler(CallQuotaExceededException.class)
+    public ResponseEntity<?> handleCallQuotaExceeded(CallQuotaExceededException e) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS) // 429
+                .body(Map.of(
+                        "error", "quota_exceeded",
+                        "message", e.getMessage()
+                ));
+    }
+
+
 }

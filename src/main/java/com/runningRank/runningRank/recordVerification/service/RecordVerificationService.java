@@ -8,6 +8,7 @@ import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
 import com.runningRank.runningRank.recordUploadLog.service.RecordUploadLogService;
 import com.runningRank.runningRank.recordVerification.domain.RecordVerification;
 import com.runningRank.runningRank.recordVerification.dto.RecordInfo;
+import com.runningRank.runningRank.recordVerification.exception.CallQuotaExceededException;
 import com.runningRank.runningRank.recordVerification.repository.RecordVerificationRepository;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
 import com.runningRank.runningRank.user.domain.User;
@@ -37,6 +38,10 @@ public class RecordVerificationService {
 
     // 기록 인증 검증 객체 생성 로직
     public UUID createRecordVerification(Long userId, String s3ImageUrl) {
+        if (!recordUploadLogService.checkUserCanCall(userId)) {
+            throw new CallQuotaExceededException();
+        }
+
         log.info("🚀 기록 검증 Job 생성 시작: {}", s3ImageUrl);
 
         UUID jobId = UUID.randomUUID();
