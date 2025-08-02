@@ -16,21 +16,11 @@ public class RecordVerificationQueueSendService {
     private final OcrSqsProducer ocrSqsProducer;
     private final GptSqsProducer gptSqsProducer;
 
-    public boolean sendOcrJob(Long userId, UUID jobId, String s3ImageUrl) {
-        try{
-            ocrSqsProducer.sendOcrJob(userId, jobId, s3ImageUrl);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
+    public void sendOcrJob(Long userId, UUID jobId, String s3ImageUrl) {
+        ocrSqsProducer.sendOcrJob(userId, jobId, s3ImageUrl);  // 예외 발생 시 위로 전달
     }
 
-    public boolean sendGptJob(Long userId, UUID jobId, String s3ImageUrl,String s3TextUrl) {
-        try{
-            gptSqsProducer.sendGptJob(userId, jobId, s3ImageUrl, s3TextUrl);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
+    public void sendGptJob(Long userId, UUID jobId, String s3ImageUrl, String s3TextUrl) {
+        gptSqsProducer.sendGptJob(userId, jobId, s3ImageUrl, s3TextUrl);
     }
 }
