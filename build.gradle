@@ -28,6 +28,10 @@ dependencies {
 	// 🔥 반드시 맨 위에 선언해야 아래에 적용돼!
 	implementation platform('software.amazon.awssdk:bom:2.25.14')
 
+	// 프로메테우스 로그
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 	// 캐싱
 	// Spring Boot Cache Starter
 	implementation 'org.springframework.boot:spring-boot-starter-cache'

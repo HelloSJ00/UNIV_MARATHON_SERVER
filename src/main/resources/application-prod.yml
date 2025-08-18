@@ -71,3 +71,15 @@ strava:
   redirect-uri: https://univ-marathon-server.p-e.kr/api/auth/strava/callback
   state-secret-key: your-very-long-and-secure-secret-key-for-strava-state-jwt # 아무 문자열이나 넣지 말고, 길고 복잡하며 외부에 노출되지 않아야 합니다. (최소 32바이트 이상 권장)
   state-expiration-millis: 300000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus  # prometheus 엔드포인트 노출
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: univ-marathon   # 앱 구분 태그
