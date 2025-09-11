@@ -1,4 +1,9 @@
 spring:
+  batch:
+    jdbc:
+      initialize-schema: always   # 초기 실행 시 메타테이블 자동 생성
+    job:
+      enabled: false   # 애플리케이션 실행 시 자동으로 Job 실행 안 하도록
   cache:
     cache-names:
       - top100RankingsCache

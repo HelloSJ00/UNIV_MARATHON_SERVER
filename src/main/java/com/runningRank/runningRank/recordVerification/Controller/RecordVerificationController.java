@@ -4,6 +4,7 @@ import com.runningRank.runningRank.auth.model.CustomUserDetails;
 import com.runningRank.runningRank.global.dto.ApiResponse;
 import com.runningRank.runningRank.recordVerification.dto.GptCallbackRequest;
 import com.runningRank.runningRank.recordVerification.dto.OcrCallbackRequest;
+import com.runningRank.runningRank.recordVerification.dto.S3ImageSaveRequest;
 import com.runningRank.runningRank.recordVerification.service.RecordVerificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,14 +26,12 @@ public class RecordVerificationController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<String>> verifyRecord(
-            @RequestBody Map<String, String> body,
+            @RequestBody S3ImageSaveRequest body,
             @AuthenticationPrincipal CustomUserDetails userDetails)
     {
         Long userId = userDetails.getId();
-        String s3ImageUrl = body.get("s3ImageUrl");
-
         // ✅ 비동기로 Job 등록 및 OCR Lambda 트리거 (SQS 메시지 전송)
-        UUID jobId = recordVerificationService.createRecordVerification(userId, s3ImageUrl);
+        UUID jobId = recordVerificationService.createRecordVerification(userId, body);
 
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .status(HttpStatus.OK.value())

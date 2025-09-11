@@ -1,6 +1,7 @@
 package com.runningRank.runningRank.recordVerification.domain;
 
 import com.runningRank.runningRank.emailVerification.domain.VerificationStatus;
+import com.runningRank.runningRank.recordVerification.dto.GptCallbackRequest;
 import com.runningRank.runningRank.recordVerification.dto.RecordInfo;
 import com.runningRank.runningRank.recordVerification.service.RecordVerificationUtil;
 import com.runningRank.runningRank.runningRecord.domain.RunningType;
@@ -55,10 +56,10 @@ public class RecordVerification {
         this.status = status;
     }
 
-    public static RecordVerification of(User user, String s3ImageUrl, RecordInfo info) {
+    public static RecordVerification of(User user,GptCallbackRequest req, RecordInfo info) {
         return RecordVerification.builder()
                 .user(user)
-                .imageUrl(s3ImageUrl)
+                .imageUrl(req.getS3ImageUrl())
                 .marathonName(info.getMarathonName())
                 .runningType(RunningType.valueOf(info.getRunningType()))
                 .recordTime(RecordVerificationUtil.convertToSeconds(info.getRecord()))

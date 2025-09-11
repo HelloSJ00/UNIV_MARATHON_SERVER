@@ -25,6 +25,10 @@ repositories {
 
 
 dependencies {
+
+	// 스프링 배치
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+
 	// 🔥 반드시 맨 위에 선언해야 아래에 적용돼!
 	implementation platform('software.amazon.awssdk:bom:2.25.14')
 
