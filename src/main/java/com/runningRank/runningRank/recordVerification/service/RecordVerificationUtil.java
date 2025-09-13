@@ -3,10 +3,12 @@ package com.runningRank.runningRank.recordVerification.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runningRank.runningRank.recordVerification.dto.RecordInfo;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+@Slf4j
 public class RecordVerificationUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -40,6 +42,15 @@ public class RecordVerificationUtil {
             return objectMapper.readValue(formattedText, RecordInfo.class);
         } catch (IOException e) {
             throw new IllegalArgumentException("RecordInfo 파싱 실패", e);
+        }
+    }
+
+    public static RecordInfo parseRecordInfoOrThrow(String formattedText) {
+        try {
+            return RecordVerificationUtil.parseRecordInfo(formattedText);
+        } catch (Exception e) {
+            log.error("🚨 기록 파싱 실패: {}", formattedText, e);
+            throw new RuntimeException("기록 파싱 실패", e);
         }
     }
 }
