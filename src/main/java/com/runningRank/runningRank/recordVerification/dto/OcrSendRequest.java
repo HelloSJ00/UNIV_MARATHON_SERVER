@@ -1,5 +1,7 @@
 package com.runningRank.runningRank.recordVerification.dto;
 
+import com.runningRank.runningRank.certificateProcessingJob.domain.CertificateProcessingJob;
+import com.runningRank.runningRank.certificateProcessingJob.dto.RetryOcrJob;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,11 +14,19 @@ public class OcrSendRequest {
     String jobId;
     String s3ImageUrl;
 
-    public static OcrSendRequest of(Long userId, UUID jobId, String s3ImageUrl) {
+    public static OcrSendRequest of(CertificateProcessingJob job) {
         return OcrSendRequest.builder()
-                .userId(userId)
-                .jobId(String.valueOf(jobId))
-                .s3ImageUrl(s3ImageUrl)
+                .userId(job.getUser().getId())
+                .jobId(String.valueOf(job.getId()))
+                .s3ImageUrl(job.getOriginalS3Url())
+                .build();
+    }
+
+    public static OcrSendRequest ofRetry(RetryOcrJob job) {
+        return OcrSendRequest.builder()
+                .userId(job.getUserId())
+                .jobId(job.getJobId())
+                .s3ImageUrl(job.getS3ImageUrl())
                 .build();
     }
 

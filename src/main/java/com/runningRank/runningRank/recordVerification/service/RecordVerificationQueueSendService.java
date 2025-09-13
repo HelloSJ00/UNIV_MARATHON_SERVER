@@ -3,14 +3,10 @@ package com.runningRank.runningRank.recordVerification.service;
 import com.runningRank.runningRank.messaging.GptSqsProducer;
 import com.runningRank.runningRank.messaging.OcrSqsProducer;
 import com.runningRank.runningRank.recordVerification.dto.GptSendRequest;
-import com.runningRank.runningRank.recordVerification.dto.OcrCallbackRequest;
 import com.runningRank.runningRank.recordVerification.dto.OcrSendRequest;
-import com.runningRank.runningRank.recordVerification.dto.S3ImageSaveRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

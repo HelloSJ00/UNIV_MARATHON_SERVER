@@ -104,4 +104,5 @@ public class CertificateProcessingJob {
             this.status = JobStatus.FAILED;
         }
     }
+
 }
