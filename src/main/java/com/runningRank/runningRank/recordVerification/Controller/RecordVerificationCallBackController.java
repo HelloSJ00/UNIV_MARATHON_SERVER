@@ -21,24 +21,14 @@ public class RecordVerificationCallBackController {
     private final RecordVerificationCallbackService recordVerificationCallbackService;
 
     @PostMapping("/ocr")
-    public ResponseEntity<?> ocrCallback(@RequestBody OcrCallbackRequest request) {
-        recordVerificationCallbackService.handleOcrCallback(
-                request.getUserId(),
-                UUID.fromString(request.getJobId()),
-                request.getS3ImageUrl(),
-                request.getOcrResultS3Key()
-        );
+    public ResponseEntity<?> ocrCallback(@RequestBody OcrCallbackRequest req) {
+        recordVerificationCallbackService.handleOcrCallback(req);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/gpt")
-    public ResponseEntity<?> gptCallback(@RequestBody GptCallbackRequest request) {
-        recordVerificationCallbackService.handleGptCallback(
-                request.getUserId(),
-                UUID.fromString(request.getJobId()),
-                request.getS3ImageUrl(),
-                request.getGptResultS3Key()
-        );
+    public ResponseEntity<?> gptCallback(@RequestBody GptCallbackRequest req) {
+        recordVerificationCallbackService.handleGptCallback(req);
         return ResponseEntity.ok().build();
     }
 }

@@ -49,4 +49,60 @@ public class CertificateProcessingJob {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "retry_count", nullable = false)
+    private int retryCount = 0;
+
+    public void jobStatusUpdateFromOcr(String s3TextUrl){
+        // 이미 OCR_DONE이거나 FAILED면 무시
+        if (this.getStatus() == JobStatus.OCR_DONE || this.getStatus() == JobStatus.FAILED) {
+            throw new IllegalStateException("⛔ 이미 처리 완료된 Job입니다. 현재 상태: " + this.getStatus());
+        }
+
+        this.status = JobStatus.OCR_DONE;
+        this.ocrResultUrl = s3TextUrl;
+    }
+
+    public void jobStatusUpdateFromGpt(String gptResultS3Key){
+        // 이미 OCR_DONE이거나 FAILED면 무시
+        if (this.getStatus() == JobStatus.GPT_DONE || this.getStatus() == JobStatus.FAILED) {
+            throw new IllegalStateException("⛔ 이미 처리 완료된 Job입니다. 현재 상태: " + this.getStatus());
+        }
+
+        this.status = JobStatus.GPT_DONE;
+        this.gptResultUrl = gptResultS3Key;
+    }
+
+    public void ocrQueueSendDone(){
+        this.status = JobStatus.OCR_QUEUE_SEND_DONE;
+    }
+
+    public void ocrQueueSendFailed(){
+        this.status = JobStatus.OCR_QUEUE_SEND_FAILED;
+    }
+
+    public void gptQueueSendDone(){
+        this.status = JobStatus.GPT_QUEUE_SEND_DONE;
+    }
+
+    public void gptQueueSendFailed(){
+        this.status = JobStatus.GPT_QUEUE_SEND_FAILED;
+    }
+
+    public void failed(String errorMessage){
+        this.status = JobStatus.FAILED;
+        this.errorMessage = errorMessage;
+    }
+
+    public void allDone(){
+        this.status = JobStatus.ALL_DONE;
+    }
+
+    public void increaseRetryCount() {
+        this.retryCount++;
+        if (this.retryCount >= 3) {
+            this.status = JobStatus.FAILED;
+        }
+    }
+
 }
